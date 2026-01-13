@@ -1,0 +1,1495 @@
+/* ======================================
+   麻雀点数管理 - スタイルシート
+   Digital & Minimal Design
+   ====================================== */
+
+/* CSS Variables */
+:root {
+    --bg-dark: #202020;
+    --bg-medium: #2a2a2a;
+    --bg-light: #404040;
+    --bg-accent: #505050;
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0a0;
+    --text-muted: #707070;
+    --accent-blue: #4a7c9b;
+    --accent-orange: #c4784a;
+    --accent-green: #5a8a5a;
+    --accent-red: #9b4a4a;
+    --border-color: #3a3a3a;
+    --riichi-color: #4a7c9b;
+    --dealer-color: #c4784a;
+}
+
+/* Reset & Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
+/* Screens */
+.screen {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+}
+
+/* Minimum viewport for game screen */
+#game-screen {
+    min-width: 360px;
+    min-height: 500px;
+    overflow: auto;
+}
+
+/* ======================================
+   Setup Screen
+   ====================================== */
+#setup-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--bg-dark);
+}
+
+.setup-container {
+    text-align: center;
+    padding: 2rem;
+}
+
+.setup-container h1 {
+    font-size: 2rem;
+    font-weight: 300;
+    margin-bottom: 2rem;
+    letter-spacing: 0.1em;
+}
+
+.mode-select {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.round-type-select {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.mode-btn,
+.round-type-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    background-color: var(--bg-light);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.mode-btn.active,
+.round-type-btn.active {
+    background-color: var(--accent-blue);
+    color: var(--text-primary);
+    border-color: var(--accent-blue);
+}
+
+.player-names {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+
+.player-names input {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    background-color: var(--bg-medium);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.player-names input::placeholder {
+    color: var(--text-muted);
+}
+
+.player-names input:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+}
+
+.primary-btn {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    background-color: var(--accent-blue);
+    color: var(--text-primary);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+.primary-btn:active {
+    background-color: #3a6a87;
+}
+
+.secondary-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    background-color: var(--bg-light);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.secondary-btn:active {
+    background-color: var(--bg-accent);
+}
+
+/* ======================================
+   Game Screen
+   ====================================== */
+#game-screen {
+    position: relative;
+    background-color: var(--bg-dark);
+}
+
+/* Central HUD */
+#central-hud {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: clamp(110px, 22vmin, 160px);
+    height: clamp(100px, 22vmin, 150px);
+    background-color: var(--bg-medium);
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.2rem;
+    z-index: 10;
+    padding: 0.4rem;
+}
+
+.round-info {
+    font-size: 1.2rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+}
+
+.kyoutaku-info {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.central-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.25rem;
+    margin-top: 0.3rem;
+    width: 100%;
+}
+
+.action-btn {
+    padding: 0.3rem 0.4rem;
+    font-size: 0.7rem;
+    background-color: var(--bg-light);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.action-btn:active {
+    background-color: var(--bg-accent);
+}
+
+.action-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Player Areas */
+.player-area {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.player-content {
+    text-align: center;
+    padding: 1rem 1.25rem;
+    background-color: var(--bg-medium);
+    border: 1px solid var(--border-color);
+    min-width: 200px;
+    max-width: 320px;
+}
+
+/* Position Bottom (0°) */
+.position-bottom {
+    bottom: 2%;
+    left: 50%;
+    transform: translateX(-50%);
+    max-height: 35%;
+}
+
+/* Position Top (180°) */
+.position-top {
+    top: 2%;
+    left: 50%;
+    transform: translateX(-50%) rotate(180deg);
+    max-height: 35%;
+}
+
+/* Position Left (90°) */
+.position-left {
+    left: 2%;
+    top: 50%;
+    transform: translateY(-50%) rotate(90deg);
+    max-width: 35%;
+}
+
+/* Position Right (270°) */
+.position-right {
+    right: 2%;
+    top: 50%;
+    transform: translateY(-50%) rotate(-90deg);
+    max-width: 35%;
+}
+
+/* Player Content */
+.player-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.player-name {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+}
+
+.player-rank {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.wind-indicator {
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 0.2rem 0.4rem;
+    background-color: var(--bg-accent);
+    color: var(--text-primary);
+    margin-right: 0.5rem;
+    min-width: 1.5rem;
+    text-align: center;
+}
+
+.dealer-indicator {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.5rem;
+    background-color: var(--dealer-color);
+    color: var(--text-primary);
+}
+
+.riichi-indicator {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.5rem;
+    background-color: var(--riichi-color);
+    color: var(--text-primary);
+}
+
+.player-score {
+    font-size: clamp(2rem, 5vmin, 3.5rem);
+    font-weight: 500;
+    margin-bottom: 1rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.player-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.6rem;
+}
+
+.player-actions button {
+    min-width: 70px;
+    height: 60px;
+    padding: 0 1rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+    background-color: var(--bg-light);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.player-actions button:active {
+    background-color: var(--bg-accent);
+}
+
+.btn-riichi.active {
+    background-color: var(--riichi-color);
+    border-color: var(--riichi-color);
+}
+
+/* 立直ボタン: パステル赤の枠 */
+.btn-riichi {
+    border: 2px solid #e8a0a0 !important;
+    background-color: rgba(232, 160, 160, 0.1) !important;
+}
+
+/* ロンボタン: 赤文字 */
+.btn-ron {
+    color: #e06060 !important;
+}
+
+/* Riichi state styling */
+.player-area.riichi .player-content {
+    border-color: var(--riichi-color);
+}
+
+.player-area.dealer .player-content {
+    border-color: var(--dealer-color);
+}
+
+/* 3 Player Mode */
+.player-area.hidden {
+    display: none;
+}
+
+/* ======================================
+   Modals
+   ====================================== */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 2vh;
+    z-index: 100;
+    overflow-y: auto;
+}
+
+.modal-content {
+    background-color: var(--bg-medium);
+    padding: 1.5rem;
+    max-width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    margin-bottom: 2vh;
+}
+
+.modal-content h2 {
+    font-size: 1.25rem;
+    font-weight: 400;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.input-section {
+    margin-bottom: 1rem;
+}
+
+.input-section label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.fu-buttons,
+.han-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.fu-btn,
+.han-btn {
+    padding: 0.6rem 1rem;
+    min-width: 50px;
+    font-size: 0.9rem;
+    background-color: var(--bg-light);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.fu-btn.active,
+.han-btn.active {
+    background-color: var(--accent-blue);
+    color: var(--text-primary);
+    border-color: var(--accent-blue);
+}
+
+.score-preview {
+    text-align: center;
+    padding: 1rem;
+    background-color: var(--bg-dark);
+    margin: 1rem 0;
+}
+
+#preview-score {
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+#preview-detail {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    align-items: stretch;
+    margin-top: 1rem;
+}
+
+.modal-buttons button {
+    min-width: 120px;
+    white-space: nowrap;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Target Buttons (Ron, Chombo) */
+.target-buttons,
+.tenpai-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin: 1rem 0;
+}
+
+.target-btn,
+.tenpai-btn {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+    background-color: var(--bg-light);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.target-btn:active,
+.target-btn.active,
+.tenpai-btn.active {
+    background-color: var(--accent-blue);
+    color: var(--text-primary);
+    border-color: var(--accent-blue);
+}
+
+.tenpai-btn.tenpai {
+    background-color: var(--accent-green);
+    border-color: var(--accent-green);
+    color: var(--text-primary);
+}
+
+.tenpai-btn.noten {
+    background-color: var(--accent-red);
+    border-color: var(--accent-red);
+    color: var(--text-primary);
+}
+
+/* Ryukyoku Type */
+.ryukyoku-type {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.type-btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    background-color: var(--bg-light);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.type-btn.active {
+    background-color: var(--accent-blue);
+    color: var(--text-primary);
+    border-color: var(--accent-blue);
+}
+
+/* ======================================
+   Fu Reference Table (符計算早見表)
+   ====================================== */
+.agari-modal-content {
+    max-width: 900px;
+    width: 95vw;
+}
+
+.agari-layout {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+}
+
+.agari-input-section {
+    flex: 1;
+    min-width: 280px;
+}
+
+.fu-reference-panel {
+    width: 320px;
+    background-color: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    padding: 0.75rem;
+    flex-shrink: 0;
+}
+
+.fu-reference-details {
+    width: 100%;
+}
+
+.fu-reference-title {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    text-align: center;
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+
+.fu-reference-title::-webkit-details-marker {
+    display: none;
+}
+
+.fu-reference-details[open] .fu-reference-title {
+    margin-bottom: 0.5rem;
+}
+
+.fu-reference-table {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.fu-row {
+    display: flex;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.fu-label {
+    width: 70px;
+    min-width: 70px;
+    padding: 0.4rem 0.35rem;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.fu-value {
+    flex: 1;
+    padding: 0.4rem 0.5rem;
+    font-size: 0.7rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    line-height: 1.4;
+    color: #e0e0e0;
+}
+
+.fu-value strong {
+    color: #fff;
+    font-weight: 600;
+}
+
+.fu-desc {
+    font-size: 0.6rem;
+    color: #aaa;
+}
+
+.fu-value-compact {
+    font-size: 0.65rem;
+    gap: 0.1rem;
+}
+
+/* Simple gray gradient color scheme */
+.fu-row-red .fu-label {
+    background: linear-gradient(135deg, #4a4a4a 0%, #3a3a3a 100%);
+}
+
+.fu-row-red .fu-value {
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    border-left: 2px solid #666;
+}
+
+.fu-row-orange .fu-label {
+    background: linear-gradient(135deg, #525252 0%, #424242 100%);
+}
+
+.fu-row-orange .fu-value {
+    background-color: #2e2e2e;
+    color: #e0e0e0;
+    border-left: 2px solid #777;
+}
+
+.fu-row-yellow .fu-label {
+    background: linear-gradient(135deg, #5a5a5a 0%, #4a4a4a 100%);
+}
+
+.fu-row-yellow .fu-value {
+    background-color: #323232;
+    color: #e0e0e0;
+    border-left: 2px solid #888;
+}
+
+.fu-row-cyan .fu-label {
+    background: linear-gradient(135deg, #606060 0%, #505050 100%);
+}
+
+.fu-row-cyan .fu-value {
+    background-color: #363636;
+    color: #e0e0e0;
+    border-left: 2px solid #999;
+}
+
+.fu-row-blue .fu-label {
+    background: linear-gradient(135deg, #686868 0%, #585858 100%);
+}
+
+.fu-row-blue .fu-value {
+    background-color: #3a3a3a;
+    color: #e0e0e0;
+    border-left: 2px solid #aaa;
+}
+
+.fu-row-gray .fu-label {
+    background: linear-gradient(135deg, #555 0%, #444 100%);
+}
+
+.fu-row-gray .fu-value {
+    background-color: #333;
+    color: #bbb;
+    border-left: 2px solid #888;
+}
+
+.fu-note {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+}
+
+/* ======================================
+   Yaku List Modal (役一覧)
+   ====================================== */
+.yaku-list-content {
+    max-width: 600px;
+    width: 95vw;
+}
+
+.yaku-list-scroll {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.yaku-section {
+    margin-bottom: 1rem;
+}
+
+.yaku-section-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--accent-blue);
+    margin-bottom: 0.5rem;
+    padding: 0.3rem 0.5rem;
+    background-color: var(--bg-light);
+    border-left: 3px solid var(--accent-blue);
+}
+
+.yaku-section-title.yaku-section-yakuman {
+    color: var(--accent-red);
+    border-left-color: var(--accent-red);
+}
+
+.yaku-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.4rem;
+}
+
+.yaku-item {
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem 0.7rem;
+    background-color: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    gap: 0.3rem;
+}
+
+.yaku-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--accent-blue);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.25rem;
+}
+
+.yaku-tiles {
+    font-size: 1.5rem;
+    letter-spacing: 0.08em;
+    background: linear-gradient(135deg, #333 0%, #222 100%);
+    padding: 0.5rem 0.6rem;
+    border-radius: 4px;
+    text-align: center;
+    line-height: 1.5;
+    font-family: "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", "Twemoji Mozilla", sans-serif;
+    color: #fff;
+}
+
+.yaku-desc {
+    font-size: 0.75rem;
+    color: #ccc;
+    line-height: 1.3;
+}
+
+/* Responsive: Stack layout on narrow screens */
+@media (max-width: 700px) {
+    .agari-layout {
+        flex-direction: column;
+    }
+
+    .fu-reference-panel {
+        width: 100%;
+        order: -1;
+        margin-bottom: 0.5rem;
+    }
+
+    .agari-modal-content {
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+}
+
+/* Menu */
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.menu-btn {
+    padding: 1rem;
+    font-size: 1rem;
+    background-color: var(--bg-light);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.menu-btn:active {
+    background-color: var(--bg-accent);
+}
+
+/* Double Ron Modal */
+.double-ron-fu-panel {
+    width: 100%;
+    margin-bottom: 0.75rem;
+}
+
+.double-ron-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    justify-content: center;
+}
+
+.double-ron-actions button {
+    min-width: 120px;
+}
+
+/* Calculator Modal (直接埋め込み) */
+.calculator-modal-content {
+    width: 95vw;
+    max-width: 600px;
+    max-height: 90vh;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.calculator-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--bg-medium);
+    flex-shrink: 0;
+}
+
+.calculator-header h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+}
+
+.close-btn:hover {
+    color: var(--accent-blue);
+}
+
+/* Calculator Container */
+.calc-container {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    background-color: var(--bg-dark);
+}
+
+.calc-section {
+    background-color: var(--bg-medium);
+    border: 1px solid var(--border-color);
+    padding: 10px;
+}
+
+.calc-section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.calc-section-header span:first-child {
+    flex: 1;
+}
+
+.calc-btn-small {
+    padding: 4px 10px;
+    background: var(--bg-light);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 12px;
+    cursor: pointer;
+}
+
+/* Hand Display */
+.calc-hand-display {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    min-height: 45px;
+    background: var(--bg-dark);
+    padding: 8px;
+}
+
+.calc-hand-tiles {
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+}
+
+.calc-agari-tile {
+    margin-left: 8px;
+    padding-left: 8px;
+    border-left: 2px solid var(--riichi-color);
+}
+
+/* Tile Selector */
+.calc-tile-section {
+    padding: 8px;
+}
+
+.calc-tile-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.calc-tile-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.calc-tile-label {
+    width: 20px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.calc-tiles-group {
+    display: flex;
+    gap: 3px;
+    flex-wrap: wrap;
+}
+
+/* Tile Styles */
+.calc-tile {
+    width: 30px;
+    height: 40px;
+    background: #f8f5f0;
+    border: 1px solid #d4c5b0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 700;
+    user-select: none;
+    transition: transform 0.1s;
+}
+
+.calc-tile:hover {
+    transform: translateY(-1px);
+}
+
+.calc-tile.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.calc-tile.small {
+    width: 24px;
+    height: 32px;
+    font-size: 0.85rem;
+}
+
+.calc-tile.small[data-suit="p"] {
+    font-size: 1rem;
+}
+
+.calc-tile[data-suit="m"] {
+    color: #c41e3a;
+}
+
+.calc-tile[data-suit="p"] {
+    color: #2563eb;
+    font-size: 1.3rem;
+}
+
+.calc-tile[data-suit="s"] {
+    color: #059669;
+}
+
+.calc-tile[data-suit="z"] {
+    color: #1f2937;
+}
+
+/* 發 = 緑 */
+.calc-tile[data-tile="6z"] {
+    color: #059669;
+}
+
+/* 中 = 赤 */
+.calc-tile[data-tile="7z"] {
+    color: #c41e3a;
+}
+
+.calc-tile.selected {
+    box-shadow: 0 0 0 2px var(--riichi-color);
+}
+
+/* Meld Section */
+.calc-melds-display {
+    display: flex;
+    gap: 8px;
+    min-height: 35px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.calc-meld-group {
+    display: flex;
+    gap: 2px;
+    padding: 3px;
+    background: var(--bg-dark);
+}
+
+.calc-meld-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+/* Meld Input UI */
+.calc-meld-input-area {
+    width: 100%;
+    background: var(--bg-dark);
+    border: 1px solid var(--riichi-color);
+    padding: 8px;
+}
+
+.calc-meld-input-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: var(--riichi-color);
+}
+
+.calc-meld-select-tiles {
+    display: flex;
+    gap: 3px;
+    flex-wrap: wrap;
+}
+
+/* Options Section */
+.calc-options-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.calc-options-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+
+.calc-toggle-row {
+    flex-wrap: wrap;
+}
+
+.calc-option-group-inline {
+    display: flex;
+    gap: 4px;
+}
+
+.calc-option-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-right: 4px;
+}
+
+/* Option Buttons */
+.calc-option-btn {
+    padding: 8px 12px;
+    background-color: var(--bg-light);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.15s;
+}
+
+.calc-option-btn:hover {
+    background-color: var(--bg-accent);
+}
+
+.calc-option-btn.active {
+    background-color: var(--accent-blue);
+    color: white;
+    border-color: var(--accent-blue);
+}
+
+.calc-option-btn.toggle-btn.active {
+    background-color: var(--riichi-color);
+    border-color: var(--riichi-color);
+    color: white;
+}
+
+.calc-option-btn.small {
+    padding: 6px 8px;
+    font-size: 12px;
+}
+
+/* Counter */
+.calc-counter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.calc-counter-btn {
+    width: 28px;
+    height: 28px;
+    background: var(--bg-light);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.calc-counter span {
+    font-size: 1rem;
+    font-weight: 500;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* Result Section */
+.calc-result-section {
+    background-color: var(--bg-medium);
+    border: 1px solid var(--border-color);
+    padding: 12px;
+}
+
+.calc-result-card {
+    background: var(--accent-blue);
+    padding: 16px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.calc-result-main {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.calc-result-label {
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+.calc-result-score {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.calc-result-payment {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 14px;
+}
+
+.calc-result-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.calc-breakdown-fu,
+.calc-breakdown-han {
+    padding: 8px;
+    background: var(--bg-dark);
+    font-size: 13px;
+}
+
+.calc-breakdown-fu strong,
+.calc-breakdown-han strong {
+    color: var(--riichi-color);
+}
+
+.calc-breakdown-yaku {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px;
+    background: var(--bg-dark);
+}
+
+.calc-yaku-tag {
+    display: inline-block;
+    padding: 4px 8px;
+    background: var(--accent-blue);
+    color: white;
+    font-size: 12px;
+}
+
+.calc-accent-btn {
+    width: 100%;
+    padding: 12px;
+    background: #c45a4a;
+    border: none;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.calc-accent-btn:hover {
+    opacity: 0.9;
+}
+
+.calc-error-message {
+    background: rgba(232, 160, 160, 0.1);
+    border: 1px solid var(--riichi-color);
+    color: var(--riichi-color);
+    padding: 10px;
+    text-align: center;
+}
+
+/* ======================================
+   Result Screen
+   ====================================== */
+#result-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--bg-dark);
+}
+
+.result-container {
+    text-align: center;
+    padding: 2rem;
+}
+
+.result-container h1 {
+    font-size: 1.5rem;
+    font-weight: 300;
+    margin-bottom: 2rem;
+}
+
+#result-list {
+    margin-bottom: 2rem;
+}
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    background-color: var(--bg-medium);
+    border: 1px solid var(--border-color);
+    min-width: 250px;
+}
+
+.result-rank {
+    font-size: 1.5rem;
+    font-weight: 500;
+    width: 40px;
+}
+
+.result-name {
+    flex: 1;
+    text-align: left;
+    padding: 0 1rem;
+}
+
+.result-score {
+    font-size: 1.25rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.result-pts {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-left: 0.5rem;
+}
+
+.result-pts.positive {
+    color: var(--accent-green);
+}
+
+.result-pts.negative {
+    color: var(--accent-red);
+}
+
+/* ======================================
+   Responsive - Scale-based approach
+   ====================================== */
+
+/* Use vmin units to scale based on viewport minimum dimension */
+#game-screen {
+    /* Container scales with viewport */
+    font-size: clamp(0.6rem, 1.5vmin, 1rem);
+}
+
+/* Scale player areas and central HUD based on viewport */
+.player-content {
+    min-width: clamp(120px, 22vmin, 300px);
+    max-width: clamp(160px, 32vmin, 380px);
+    padding: clamp(0.5rem, 1.2vmin, 1.5rem) clamp(0.6rem, 1.4vmin, 1.5rem);
+}
+
+.player-name {
+    font-size: clamp(0.75rem, 1.8vmin, 1.3rem);
+}
+
+.player-score {
+    font-size: clamp(1.4rem, 4.5vmin, 3.5rem);
+    margin-bottom: clamp(0.4rem, 1vmin, 1rem);
+}
+
+.player-actions {
+    gap: clamp(0.3rem, 0.6vmin, 0.6rem);
+}
+
+.player-actions button {
+    min-width: clamp(44px, 9vmin, 85px);
+    height: clamp(38px, 7.5vmin, 72px);
+    padding: 0 clamp(0.4rem, 0.9vmin, 1rem);
+    font-size: clamp(0.8rem, 1.6vmin, 1.25rem);
+}
+
+#central-hud {
+    width: clamp(100px, 22vmin, 220px);
+    height: clamp(100px, 22vmin, 220px);
+    gap: clamp(0.2rem, 0.5vmin, 0.5rem);
+    padding: clamp(0.3rem, 0.8vmin, 0.75rem);
+}
+
+.round-info {
+    font-size: clamp(1rem, 2.5vmin, 1.8rem);
+    white-space: nowrap;
+}
+
+.kyoutaku-info {
+    font-size: clamp(0.65rem, 1.4vmin, 1rem);
+    white-space: nowrap;
+}
+
+.central-buttons {
+    gap: clamp(0.25rem, 0.6vmin, 0.6rem);
+    flex-wrap: nowrap;
+}
+
+.action-btn {
+    padding: clamp(0.3rem, 0.7vmin, 0.6rem) clamp(0.5rem, 1vmin, 1.2rem);
+    font-size: clamp(0.65rem, 1.3vmin, 0.95rem);
+    white-space: nowrap;
+}
+
+.dealer-indicator,
+.riichi-indicator {
+    font-size: clamp(0.55rem, 1.1vmin, 0.8rem);
+    padding: clamp(0.1rem, 0.25vmin, 0.2rem) clamp(0.25rem, 0.5vmin, 0.5rem);
+}
+
+.player-rank {
+    font-size: clamp(0.6rem, 1.2vmin, 0.85rem);
+}
+
+/* Ensure minimum readability on very small screens */
+@media (max-width: 400px),
+(max-height: 400px) {
+    .player-actions button {
+        min-width: 32px;
+        height: 28px;
+        font-size: 0.65rem;
+    }
+
+    .player-content {
+        min-width: 90px;
+        padding: 0.3rem;
+    }
+
+    .player-score {
+        font-size: 1rem;
+    }
+
+    #central-hud {
+        width: 70px;
+        height: 70px;
+    }
+
+    .round-info {
+        font-size: 0.8rem;
+    }
+
+    .kyoutaku-info {
+        font-size: 0.55rem;
+    }
+
+    .action-btn {
+        padding: 0.2rem 0.3rem;
+        font-size: 0.55rem;
+    }
+}
+
+/* Landscape orientation: prioritize horizontal space */
+@media (orientation: landscape) and (max-height: 500px) {
+
+    .position-left,
+    .position-right {
+        max-width: 28%;
+    }
+
+    .position-bottom,
+    .position-top {
+        max-height: 42%;
+    }
+}
+
+/* Portrait orientation: prioritize vertical space */
+@media (orientation: portrait) and (max-width: 500px) {
+
+    .position-left,
+    .position-right {
+        max-width: 35%;
+    }
+
+    .position-bottom,
+    .position-top {
+        max-height: 35%;
+    }
+}

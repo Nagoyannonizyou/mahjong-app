@@ -1,0 +1,5759 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>麻雀点数管理</title>
+    <style>
+/* ======================================
+   麻雀点数管理 - スタイルシート
+   Digital & Minimal Design
+   ====================================== */
+
+/* CSS Variables */
+:root {
+    --bg-dark: #202020;
+    --bg-medium: #2a2a2a;
+    --bg-light: #404040;
+    --bg-accent: #505050;
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0a0;
+    --text-muted: #707070;
+    --accent-blue: #4a7c9b;
+    --accent-orange: #c4784a;
+    --accent-green: #5a8a5a;
+    --accent-red: #9b4a4a;
+    --border-color: #3a3a3a;
+    --riichi-color: #4a7c9b;
+    --dealer-color: #c4784a;
+}
+
+/* Reset & Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
+/* Screens */
+.screen {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+}
+
+/* Minimum viewport for game screen */
+#game-screen {
+    min-width: 360px;
+    min-height: 500px;
+    overflow: auto;
+}
+
+/* ======================================
+   Setup Screen
+   ====================================== */
+#setup-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--bg-dark);
+}
+
+.setup-container {
+    text-align: center;
+    padding: 2rem;
+}
+
+.setup-container h1 {
+    font-size: 2rem;
+    font-weight: 300;
+    margin-bottom: 2rem;
+    letter-spacing: 0.1em;
+}
+
+.mode-select {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.round-type-select {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.mode-btn,
+.round-type-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    background-color: var(--bg-light);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.mode-btn.active,
+.round-type-btn.active {
+    background-color: var(--accent-blue);
+    color: var(--text-primary);
+    border-color: var(--accent-blue);
+}
+
+.player-names {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+
+.player-names input {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    background-color: var(--bg-medium);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.player-names input::placeholder {
+    color: var(--text-muted);
+}
+
+.player-names input:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+}
+
+.primary-btn {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    background-color: var(--accent-blue);
+    color: var(--text-primary);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+.primary-btn:active {
+    background-color: #3a6a87;
+}
+
+.secondary-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    background-color: var(--bg-light);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.secondary-btn:active {
+    background-color: var(--bg-accent);
+}
+
+/* ======================================
+   Game Screen
+   ====================================== */
+#game-screen {
+    position: relative;
+    background-color: var(--bg-dark);
+}
+
+/* Central HUD */
+#central-hud {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: clamp(110px, 22vmin, 160px);
+    height: clamp(100px, 22vmin, 150px);
+    background-color: var(--bg-medium);
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.2rem;
+    z-index: 10;
+    padding: 0.4rem;
+}
+
+.round-info {
+    font-size: 1.2rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+}
+
+.kyoutaku-info {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.central-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.25rem;
+    margin-top: 0.3rem;
+    width: 100%;
+}
+
+.action-btn {
+    padding: 0.3rem 0.4rem;
+    font-size: 0.7rem;
+    background-color: var(--bg-light);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.action-btn:active {
+    background-color: var(--bg-accent);
+}
+
+.action-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Player Areas */
+.player-area {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.player-content {
+    text-align: center;
+    padding: 1rem 1.25rem;
+    background-color: var(--bg-medium);
+    border: 1px solid var(--border-color);
+    min-width: 200px;
+    max-width: 320px;
+}
+
+/* Position Bottom (0°) */
+.position-bottom {
+    bottom: 2%;
+    left: 50%;
+    transform: translateX(-50%);
+    max-height: 35%;
+}
+
+/* Position Top (180°) */
+.position-top {
+    top: 2%;
+    left: 50%;
+    transform: translateX(-50%) rotate(180deg);
+    max-height: 35%;
+}
+
+/* Position Left (90°) */
+.position-left {
+    left: 2%;
+    top: 50%;
+    transform: translateY(-50%) rotate(90deg);
+    max-width: 35%;
+}
+
+/* Position Right (270°) */
+.position-right {
+    right: 2%;
+    top: 50%;
+    transform: translateY(-50%) rotate(-90deg);
+    max-width: 35%;
+}
+
+/* Player Content */
+.player-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.player-name {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+}
+
+.player-rank {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.wind-indicator {
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 0.2rem 0.4rem;
+    background-color: var(--bg-accent);
+    color: var(--text-primary);
+    margin-right: 0.5rem;
+    min-width: 1.5rem;
+    text-align: center;
+}
+
+.dealer-indicator {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.5rem;
+    background-color: var(--dealer-color);
+    color: var(--text-primary);
+}
+
+.riichi-indicator {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.5rem;
+    background-color: var(--riichi-color);
+    color: var(--text-primary);
+}
+
+.player-score {
+    font-size: clamp(2rem, 5vmin, 3.5rem);
+    font-weight: 500;
+    margin-bottom: 1rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.player-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.6rem;
+}
+
+.player-actions button {
+    min-width: 70px;
+    height: 60px;
+    padding: 0 1rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+    background-color: var(--bg-light);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.player-actions button:active {
+    background-color: var(--bg-accent);
+}
+
+.btn-riichi.active {
+    background-color: var(--riichi-color);
+    border-color: var(--riichi-color);
+}
+
+/* 立直ボタン: パステル赤の枠 */
+.btn-riichi {
+    border: 2px solid #e8a0a0 !important;
+    background-color: rgba(232, 160, 160, 0.1) !important;
+}
+
+/* ロンボタン: 赤文字 */
+.btn-ron {
+    color: #e06060 !important;
+}
+
+/* Riichi state styling */
+.player-area.riichi .player-content {
+    border-color: var(--riichi-color);
+}
+
+.player-area.dealer .player-content {
+    border-color: var(--dealer-color);
+}
+
+/* 3 Player Mode */
+.player-area.hidden {
+    display: none;
+}
+
+/* ======================================
+   Modals
+   ====================================== */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 2vh;
+    z-index: 100;
+    overflow-y: auto;
+}
+
+.modal-content {
+    background-color: var(--bg-medium);
+    padding: 1.5rem;
+    max-width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    margin-bottom: 2vh;
+}
+
+.modal-content h2 {
+    font-size: 1.25rem;
+    font-weight: 400;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.input-section {
+    margin-bottom: 1rem;
+}
+
+.input-section label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.fu-buttons,
+.han-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.fu-btn,
+.han-btn {
+    padding: 0.6rem 1rem;
+    min-width: 50px;
+    font-size: 0.9rem;
+    background-color: var(--bg-light);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.fu-btn.active,
+.han-btn.active {
+    background-color: var(--accent-blue);
+    color: var(--text-primary);
+    border-color: var(--accent-blue);
+}
+
+.score-preview {
+    text-align: center;
+    padding: 1rem;
+    background-color: var(--bg-dark);
+    margin: 1rem 0;
+}
+
+#preview-score {
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+#preview-detail {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    align-items: stretch;
+    margin-top: 1rem;
+}
+
+.modal-buttons button {
+    min-width: 120px;
+    white-space: nowrap;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Target Buttons (Ron, Chombo) */
+.target-buttons,
+.tenpai-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin: 1rem 0;
+}
+
+.target-btn,
+.tenpai-btn {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+    background-color: var(--bg-light);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.target-btn:active,
+.target-btn.active,
+.tenpai-btn.active {
+    background-color: var(--accent-blue);
+    color: var(--text-primary);
+    border-color: var(--accent-blue);
+}
+
+.tenpai-btn.tenpai {
+    background-color: var(--accent-green);
+    border-color: var(--accent-green);
+    color: var(--text-primary);
+}
+
+.tenpai-btn.noten {
+    background-color: var(--accent-red);
+    border-color: var(--accent-red);
+    color: var(--text-primary);
+}
+
+/* Ryukyoku Type */
+.ryukyoku-type {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.type-btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    background-color: var(--bg-light);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.type-btn.active {
+    background-color: var(--accent-blue);
+    color: var(--text-primary);
+    border-color: var(--accent-blue);
+}
+
+/* ======================================
+   Fu Reference Table (符計算早見表)
+   ====================================== */
+.agari-modal-content {
+    max-width: 900px;
+    width: 95vw;
+}
+
+.agari-layout {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+}
+
+.agari-input-section {
+    flex: 1;
+    min-width: 280px;
+}
+
+.fu-reference-panel {
+    width: 320px;
+    background-color: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    padding: 0.75rem;
+    flex-shrink: 0;
+}
+
+.fu-reference-details {
+    width: 100%;
+}
+
+.fu-reference-title {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    text-align: center;
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+
+.fu-reference-title::-webkit-details-marker {
+    display: none;
+}
+
+.fu-reference-details[open] .fu-reference-title {
+    margin-bottom: 0.5rem;
+}
+
+.fu-reference-table {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.fu-row {
+    display: flex;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.fu-label {
+    width: 70px;
+    min-width: 70px;
+    padding: 0.4rem 0.35rem;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.fu-value {
+    flex: 1;
+    padding: 0.4rem 0.5rem;
+    font-size: 0.7rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    line-height: 1.4;
+    color: #e0e0e0;
+}
+
+.fu-value strong {
+    color: #fff;
+    font-weight: 600;
+}
+
+.fu-desc {
+    font-size: 0.6rem;
+    color: #aaa;
+}
+
+.fu-value-compact {
+    font-size: 0.65rem;
+    gap: 0.1rem;
+}
+
+/* Simple gray gradient color scheme */
+.fu-row-red .fu-label {
+    background: linear-gradient(135deg, #4a4a4a 0%, #3a3a3a 100%);
+}
+
+.fu-row-red .fu-value {
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    border-left: 2px solid #666;
+}
+
+.fu-row-orange .fu-label {
+    background: linear-gradient(135deg, #525252 0%, #424242 100%);
+}
+
+.fu-row-orange .fu-value {
+    background-color: #2e2e2e;
+    color: #e0e0e0;
+    border-left: 2px solid #777;
+}
+
+.fu-row-yellow .fu-label {
+    background: linear-gradient(135deg, #5a5a5a 0%, #4a4a4a 100%);
+}
+
+.fu-row-yellow .fu-value {
+    background-color: #323232;
+    color: #e0e0e0;
+    border-left: 2px solid #888;
+}
+
+.fu-row-cyan .fu-label {
+    background: linear-gradient(135deg, #606060 0%, #505050 100%);
+}
+
+.fu-row-cyan .fu-value {
+    background-color: #363636;
+    color: #e0e0e0;
+    border-left: 2px solid #999;
+}
+
+.fu-row-blue .fu-label {
+    background: linear-gradient(135deg, #686868 0%, #585858 100%);
+}
+
+.fu-row-blue .fu-value {
+    background-color: #3a3a3a;
+    color: #e0e0e0;
+    border-left: 2px solid #aaa;
+}
+
+.fu-row-gray .fu-label {
+    background: linear-gradient(135deg, #555 0%, #444 100%);
+}
+
+.fu-row-gray .fu-value {
+    background-color: #333;
+    color: #bbb;
+    border-left: 2px solid #888;
+}
+
+.fu-note {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+}
+
+/* ======================================
+   Yaku List Modal (役一覧)
+   ====================================== */
+.yaku-list-content {
+    max-width: 600px;
+    width: 95vw;
+}
+
+.yaku-list-scroll {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.yaku-section {
+    margin-bottom: 1rem;
+}
+
+.yaku-section-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--accent-blue);
+    margin-bottom: 0.5rem;
+    padding: 0.3rem 0.5rem;
+    background-color: var(--bg-light);
+    border-left: 3px solid var(--accent-blue);
+}
+
+.yaku-section-title.yaku-section-yakuman {
+    color: var(--accent-red);
+    border-left-color: var(--accent-red);
+}
+
+.yaku-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.4rem;
+}
+
+.yaku-item {
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem 0.7rem;
+    background-color: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    gap: 0.3rem;
+}
+
+.yaku-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--accent-blue);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.25rem;
+}
+
+.yaku-tiles {
+    font-size: 1.5rem;
+    letter-spacing: 0.08em;
+    background: linear-gradient(135deg, #333 0%, #222 100%);
+    padding: 0.5rem 0.6rem;
+    border-radius: 4px;
+    text-align: center;
+    line-height: 1.5;
+    font-family: "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", "Twemoji Mozilla", sans-serif;
+    color: #fff;
+}
+
+.yaku-desc {
+    font-size: 0.75rem;
+    color: #ccc;
+    line-height: 1.3;
+}
+
+/* Responsive: Stack layout on narrow screens */
+@media (max-width: 700px) {
+    .agari-layout {
+        flex-direction: column;
+    }
+
+    .fu-reference-panel {
+        width: 100%;
+        order: -1;
+        margin-bottom: 0.5rem;
+    }
+
+    .agari-modal-content {
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+}
+
+/* Menu */
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.menu-btn {
+    padding: 1rem;
+    font-size: 1rem;
+    background-color: var(--bg-light);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.menu-btn:active {
+    background-color: var(--bg-accent);
+}
+
+/* Double Ron Modal */
+.double-ron-fu-panel {
+    width: 100%;
+    margin-bottom: 0.75rem;
+}
+
+.double-ron-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    justify-content: center;
+}
+
+.double-ron-actions button {
+    min-width: 120px;
+}
+
+/* Calculator Modal (直接埋め込み) */
+.calculator-modal-content {
+    width: 95vw;
+    max-width: 600px;
+    max-height: 90vh;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.calculator-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--bg-medium);
+    flex-shrink: 0;
+}
+
+.calculator-header h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+}
+
+.close-btn:hover {
+    color: var(--accent-blue);
+}
+
+/* Calculator Container */
+.calc-container {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    background-color: var(--bg-dark);
+}
+
+.calc-section {
+    background-color: var(--bg-medium);
+    border: 1px solid var(--border-color);
+    padding: 10px;
+}
+
+.calc-section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.calc-section-header span:first-child {
+    flex: 1;
+}
+
+.calc-btn-small {
+    padding: 4px 10px;
+    background: var(--bg-light);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 12px;
+    cursor: pointer;
+}
+
+/* Hand Display */
+.calc-hand-display {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    min-height: 45px;
+    background: var(--bg-dark);
+    padding: 8px;
+}
+
+.calc-hand-tiles {
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+}
+
+.calc-agari-tile {
+    margin-left: 8px;
+    padding-left: 8px;
+    border-left: 2px solid var(--riichi-color);
+}
+
+/* Tile Selector */
+.calc-tile-section {
+    padding: 8px;
+}
+
+.calc-tile-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.calc-tile-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.calc-tile-label {
+    width: 20px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.calc-tiles-group {
+    display: flex;
+    gap: 3px;
+    flex-wrap: wrap;
+}
+
+/* Tile Styles */
+.calc-tile {
+    width: 30px;
+    height: 40px;
+    background: #f8f5f0;
+    border: 1px solid #d4c5b0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 700;
+    user-select: none;
+    transition: transform 0.1s;
+}
+
+.calc-tile:hover {
+    transform: translateY(-1px);
+}
+
+.calc-tile.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.calc-tile.small {
+    width: 24px;
+    height: 32px;
+    font-size: 0.85rem;
+}
+
+.calc-tile.small[data-suit="p"] {
+    font-size: 1rem;
+}
+
+.calc-tile[data-suit="m"] {
+    color: #c41e3a;
+}
+
+.calc-tile[data-suit="p"] {
+    color: #2563eb;
+    font-size: 1.3rem;
+}
+
+.calc-tile[data-suit="s"] {
+    color: #059669;
+}
+
+.calc-tile[data-suit="z"] {
+    color: #1f2937;
+}
+
+/* 發 = 緑 */
+.calc-tile[data-tile="6z"] {
+    color: #059669;
+}
+
+/* 中 = 赤 */
+.calc-tile[data-tile="7z"] {
+    color: #c41e3a;
+}
+
+.calc-tile.selected {
+    box-shadow: 0 0 0 2px var(--riichi-color);
+}
+
+/* Meld Section */
+.calc-melds-display {
+    display: flex;
+    gap: 8px;
+    min-height: 35px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.calc-meld-group {
+    display: flex;
+    gap: 2px;
+    padding: 3px;
+    background: var(--bg-dark);
+}
+
+.calc-meld-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+/* Meld Input UI */
+.calc-meld-input-area {
+    width: 100%;
+    background: var(--bg-dark);
+    border: 1px solid var(--riichi-color);
+    padding: 8px;
+}
+
+.calc-meld-input-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: var(--riichi-color);
+}
+
+.calc-meld-select-tiles {
+    display: flex;
+    gap: 3px;
+    flex-wrap: wrap;
+}
+
+/* Options Section */
+.calc-options-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.calc-options-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+
+.calc-toggle-row {
+    flex-wrap: wrap;
+}
+
+.calc-option-group-inline {
+    display: flex;
+    gap: 4px;
+}
+
+.calc-option-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-right: 4px;
+}
+
+/* Option Buttons */
+.calc-option-btn {
+    padding: 8px 12px;
+    background-color: var(--bg-light);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.15s;
+}
+
+.calc-option-btn:hover {
+    background-color: var(--bg-accent);
+}
+
+.calc-option-btn.active {
+    background-color: var(--accent-blue);
+    color: white;
+    border-color: var(--accent-blue);
+}
+
+.calc-option-btn.toggle-btn.active {
+    background-color: var(--riichi-color);
+    border-color: var(--riichi-color);
+    color: white;
+}
+
+.calc-option-btn.small {
+    padding: 6px 8px;
+    font-size: 12px;
+}
+
+/* Counter */
+.calc-counter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.calc-counter-btn {
+    width: 28px;
+    height: 28px;
+    background: var(--bg-light);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.calc-counter span {
+    font-size: 1rem;
+    font-weight: 500;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* Result Section */
+.calc-result-section {
+    background-color: var(--bg-medium);
+    border: 1px solid var(--border-color);
+    padding: 12px;
+}
+
+.calc-result-card {
+    background: var(--accent-blue);
+    padding: 16px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.calc-result-main {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.calc-result-label {
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+.calc-result-score {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.calc-result-payment {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 14px;
+}
+
+.calc-result-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.calc-breakdown-fu,
+.calc-breakdown-han {
+    padding: 8px;
+    background: var(--bg-dark);
+    font-size: 13px;
+}
+
+.calc-breakdown-fu strong,
+.calc-breakdown-han strong {
+    color: var(--riichi-color);
+}
+
+.calc-breakdown-yaku {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px;
+    background: var(--bg-dark);
+}
+
+.calc-yaku-tag {
+    display: inline-block;
+    padding: 4px 8px;
+    background: var(--accent-blue);
+    color: white;
+    font-size: 12px;
+}
+
+.calc-accent-btn {
+    width: 100%;
+    padding: 12px;
+    background: #c45a4a;
+    border: none;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.calc-accent-btn:hover {
+    opacity: 0.9;
+}
+
+.calc-error-message {
+    background: rgba(232, 160, 160, 0.1);
+    border: 1px solid var(--riichi-color);
+    color: var(--riichi-color);
+    padding: 10px;
+    text-align: center;
+}
+
+/* ======================================
+   Result Screen
+   ====================================== */
+#result-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--bg-dark);
+}
+
+.result-container {
+    text-align: center;
+    padding: 2rem;
+}
+
+.result-container h1 {
+    font-size: 1.5rem;
+    font-weight: 300;
+    margin-bottom: 2rem;
+}
+
+#result-list {
+    margin-bottom: 2rem;
+}
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    background-color: var(--bg-medium);
+    border: 1px solid var(--border-color);
+    min-width: 250px;
+}
+
+.result-rank {
+    font-size: 1.5rem;
+    font-weight: 500;
+    width: 40px;
+}
+
+.result-name {
+    flex: 1;
+    text-align: left;
+    padding: 0 1rem;
+}
+
+.result-score {
+    font-size: 1.25rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.result-pts {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-left: 0.5rem;
+}
+
+.result-pts.positive {
+    color: var(--accent-green);
+}
+
+.result-pts.negative {
+    color: var(--accent-red);
+}
+
+/* ======================================
+   Responsive - Scale-based approach
+   ====================================== */
+
+/* Use vmin units to scale based on viewport minimum dimension */
+#game-screen {
+    /* Container scales with viewport */
+    font-size: clamp(0.6rem, 1.5vmin, 1rem);
+}
+
+/* Scale player areas and central HUD based on viewport */
+.player-content {
+    min-width: clamp(120px, 22vmin, 300px);
+    max-width: clamp(160px, 32vmin, 380px);
+    padding: clamp(0.5rem, 1.2vmin, 1.5rem) clamp(0.6rem, 1.4vmin, 1.5rem);
+}
+
+.player-name {
+    font-size: clamp(0.75rem, 1.8vmin, 1.3rem);
+}
+
+.player-score {
+    font-size: clamp(1.4rem, 4.5vmin, 3.5rem);
+    margin-bottom: clamp(0.4rem, 1vmin, 1rem);
+}
+
+.player-actions {
+    gap: clamp(0.3rem, 0.6vmin, 0.6rem);
+}
+
+.player-actions button {
+    min-width: clamp(44px, 9vmin, 85px);
+    height: clamp(38px, 7.5vmin, 72px);
+    padding: 0 clamp(0.4rem, 0.9vmin, 1rem);
+    font-size: clamp(0.8rem, 1.6vmin, 1.25rem);
+}
+
+#central-hud {
+    width: clamp(100px, 22vmin, 220px);
+    height: clamp(100px, 22vmin, 220px);
+    gap: clamp(0.2rem, 0.5vmin, 0.5rem);
+    padding: clamp(0.3rem, 0.8vmin, 0.75rem);
+}
+
+.round-info {
+    font-size: clamp(1rem, 2.5vmin, 1.8rem);
+    white-space: nowrap;
+}
+
+.kyoutaku-info {
+    font-size: clamp(0.65rem, 1.4vmin, 1rem);
+    white-space: nowrap;
+}
+
+.central-buttons {
+    gap: clamp(0.25rem, 0.6vmin, 0.6rem);
+    flex-wrap: nowrap;
+}
+
+.action-btn {
+    padding: clamp(0.3rem, 0.7vmin, 0.6rem) clamp(0.5rem, 1vmin, 1.2rem);
+    font-size: clamp(0.65rem, 1.3vmin, 0.95rem);
+    white-space: nowrap;
+}
+
+.dealer-indicator,
+.riichi-indicator {
+    font-size: clamp(0.55rem, 1.1vmin, 0.8rem);
+    padding: clamp(0.1rem, 0.25vmin, 0.2rem) clamp(0.25rem, 0.5vmin, 0.5rem);
+}
+
+.player-rank {
+    font-size: clamp(0.6rem, 1.2vmin, 0.85rem);
+}
+
+/* Ensure minimum readability on very small screens */
+@media (max-width: 400px),
+(max-height: 400px) {
+    .player-actions button {
+        min-width: 32px;
+        height: 28px;
+        font-size: 0.65rem;
+    }
+
+    .player-content {
+        min-width: 90px;
+        padding: 0.3rem;
+    }
+
+    .player-score {
+        font-size: 1rem;
+    }
+
+    #central-hud {
+        width: 70px;
+        height: 70px;
+    }
+
+    .round-info {
+        font-size: 0.8rem;
+    }
+
+    .kyoutaku-info {
+        font-size: 0.55rem;
+    }
+
+    .action-btn {
+        padding: 0.2rem 0.3rem;
+        font-size: 0.55rem;
+    }
+}
+
+/* Landscape orientation: prioritize horizontal space */
+@media (orientation: landscape) and (max-height: 500px) {
+
+    .position-left,
+    .position-right {
+        max-width: 28%;
+    }
+
+    .position-bottom,
+    .position-top {
+        max-height: 42%;
+    }
+}
+
+/* Portrait orientation: prioritize vertical space */
+@media (orientation: portrait) and (max-width: 500px) {
+
+    .position-left,
+    .position-right {
+        max-width: 35%;
+    }
+
+    .position-bottom,
+    .position-top {
+        max-height: 35%;
+    }
+}    </style>
+</head>
+
+<body>
+    <!-- ゲーム開始画面 -->
+    <div id="setup-screen" class="screen">
+        <div class="setup-container">
+            <h1>麻雀点数管理</h1>
+            <div class="mode-select">
+                <button id="btn-4player" class="mode-btn active">4人打ち</button>
+                <button id="btn-3player" class="mode-btn">3人打ち</button>
+            </div>
+            <div class="round-type-select">
+                <button id="btn-hanchan" class="round-type-btn active">半荘（ハンチャン）</button>
+                <button id="btn-tonpuu" class="round-type-btn">東風（トンプウ）</button>
+            </div>
+            <div class="player-names">
+                <input type="text" id="player1-name" placeholder="プレイヤー1（下）" value="Player 1" data-default="Player 1">
+                <input type="text" id="player2-name" placeholder="プレイヤー2（右）" value="Player 2" data-default="Player 2">
+                <input type="text" id="player3-name" placeholder="プレイヤー3（上）" value="Player 3" data-default="Player 3">
+                <input type="text" id="player4-name" placeholder="プレイヤー4（左）" value="Player 4" data-default="Player 4">
+            </div>
+            <button id="btn-start" class="primary-btn">ゲーム開始</button>
+            <button id="btn-resume" class="secondary-btn" style="display: none;">前回の続きから</button>
+        </div>
+    </div>
+
+    <!-- メインゲーム画面 -->
+    <div id="game-screen" class="screen" style="display: none;">
+        <!-- 中央情報エリア -->
+        <div id="central-hud">
+            <div class="round-info">
+                <span id="round-wind">東</span><span id="round-number">1</span>局
+                <span id="honba-count">0</span>本場
+            </div>
+            <div class="kyoutaku-info">
+                供託: <span id="kyoutaku-count">0</span>
+            </div>
+            <div class="central-buttons">
+                <button id="btn-ryukyoku" class="action-btn">流局</button>
+                <button id="btn-double-ron-hud" class="action-btn">W/Tロン</button>
+                <button id="btn-undo" class="action-btn" disabled>戻る</button>
+                <button id="btn-menu" class="action-btn">≡</button>
+            </div>
+        </div>
+
+        <!-- プレイヤーエリア（下 - 正位置） -->
+        <div id="player-area-1" class="player-area position-bottom">
+            <div class="player-content">
+                <div class="player-header">
+                    <span class="wind-indicator"></span>
+                    <span class="player-name">Player 1</span>
+                    <span class="player-rank"></span>
+                    <span class="dealer-indicator" style="display: none;">親</span>
+                    <span class="riichi-indicator" style="display: none;">リーチ</span>
+                </div>
+                <div class="player-score">25000</div>
+                <div class="player-actions">
+                    <button class="btn-riichi" data-player="0">立直</button>
+                    <button class="btn-tsumo" data-player="0">ツモ</button>
+                    <button class="btn-ron" data-player="0">ロン</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- プレイヤーエリア（右 - 270度回転） Player2は時計回りで右 -->
+        <div id="player-area-2" class="player-area position-right">
+            <div class="player-content">
+                <div class="player-header">
+                    <span class="wind-indicator"></span>
+                    <span class="player-name">Player 2</span>
+                    <span class="player-rank"></span>
+                    <span class="dealer-indicator" style="display: none;">親</span>
+                    <span class="riichi-indicator" style="display: none;">リーチ</span>
+                </div>
+                <div class="player-score">25000</div>
+                <div class="player-actions">
+                    <button class="btn-riichi" data-player="1">立直</button>
+                    <button class="btn-tsumo" data-player="1">ツモ</button>
+                    <button class="btn-ron" data-player="1">ロン</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- プレイヤーエリア（上 - 180度回転） Player3は時計回りで上（対面） -->
+        <div id="player-area-3" class="player-area position-top">
+            <div class="player-content">
+                <div class="player-header">
+                    <span class="wind-indicator"></span>
+                    <span class="player-name">Player 3</span>
+                    <span class="player-rank"></span>
+                    <span class="dealer-indicator" style="display: none;">親</span>
+                    <span class="riichi-indicator" style="display: none;">リーチ</span>
+                </div>
+                <div class="player-score">25000</div>
+                <div class="player-actions">
+                    <button class="btn-riichi" data-player="2">立直</button>
+                    <button class="btn-tsumo" data-player="2">ツモ</button>
+                    <button class="btn-ron" data-player="2">ロン</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- プレイヤーエリア（左 - 90度回転） Player4は時計回りで左 -->
+        <div id="player-area-4" class="player-area position-left">
+            <div class="player-content">
+                <div class="player-header">
+                    <span class="wind-indicator"></span>
+                    <span class="player-name">Player 4</span>
+                    <span class="player-rank"></span>
+                    <span class="dealer-indicator" style="display: none;">親</span>
+                    <span class="riichi-indicator" style="display: none;">リーチ</span>
+                </div>
+                <div class="player-score">25000</div>
+                <div class="player-actions">
+                    <button class="btn-riichi" data-player="3">立直</button>
+                    <button class="btn-tsumo" data-player="3">ツモ</button>
+                    <button class="btn-ron" data-player="3">ロン</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 和了入力モーダル -->
+    <div id="agari-modal" class="modal" style="display: none;">
+        <div class="modal-content agari-modal-content">
+            <h2 id="agari-title">和了入力</h2>
+
+            <div class="agari-layout">
+                <!-- 左側：入力フォーム -->
+                <div class="agari-input-section">
+                    <!-- ロン時の放銃者選択 -->
+                    <div id="ron-target-select" style="display: none;">
+                        <p>放銃者を選択:</p>
+                        <div id="ron-target-buttons" class="target-buttons"></div>
+                    </div>
+
+                    <!-- 符選択 -->
+                    <div class="input-section">
+                        <label>符:</label>
+                        <div class="fu-buttons">
+                            <button class="fu-btn" data-fu="20">20</button>
+                            <button class="fu-btn" data-fu="25">25</button>
+                            <button class="fu-btn active" data-fu="30">30</button>
+                            <button class="fu-btn" data-fu="40">40</button>
+                            <button class="fu-btn" data-fu="50">50</button>
+                            <button class="fu-btn" data-fu="60">60</button>
+                            <button class="fu-btn" data-fu="70">70</button>
+                            <button class="fu-btn" data-fu="80">80</button>
+                            <button class="fu-btn" data-fu="90">90</button>
+                            <button class="fu-btn" data-fu="100">100</button>
+                            <button class="fu-btn" data-fu="110">110</button>
+                        </div>
+                    </div>
+
+                    <!-- 翻選択 -->
+                    <div class="input-section">
+                        <label>翻:</label>
+                        <div class="han-buttons">
+                            <button class="han-btn active" data-han="1">1</button>
+                            <button class="han-btn" data-han="2">2</button>
+                            <button class="han-btn" data-han="3">3</button>
+                            <button class="han-btn" data-han="4">4</button>
+                            <button class="han-btn" data-han="5">5</button>
+                            <button class="han-btn" data-han="6">6</button>
+                            <button class="han-btn" data-han="7">7</button>
+                            <button class="han-btn" data-han="8">8</button>
+                            <button class="han-btn" data-han="9">9</button>
+                            <button class="han-btn" data-han="10">10</button>
+                            <button class="han-btn" data-han="11">11</button>
+                            <button class="han-btn" data-han="12">12</button>
+                            <button class="han-btn yakuman-btn" data-han="13">役満</button>
+                            <button class="han-btn yakuman-btn" data-han="26">W役満</button>
+                            <button class="han-btn yakuman-btn" data-han="39">T役満</button>
+                        </div>
+                    </div>
+
+                    <!-- 点数プレビュー -->
+                    <div class="score-preview">
+                        <span id="preview-score">1000点</span>
+                        <span id="preview-detail"></span>
+                    </div>
+
+                    <div class="modal-buttons">
+                        <button id="btn-agari-cancel" class="secondary-btn">キャンセル</button>
+                        <button id="btn-yaku-list-from-agari" class="secondary-btn">役一覧</button>
+                        <button id="btn-calculator-from-agari" class="secondary-btn">計算ツール</button>
+                        <button id="btn-agari-confirm" class="primary-btn">確定</button>
+                    </div>
+                </div>
+
+                <!-- 右側：符計算早見表（折りたたみ式） -->
+                <div class="fu-reference-panel">
+                    <details class="fu-reference-details">
+                        <summary class="fu-reference-title">符計算早見表 ▼</summary>
+                        <div class="fu-reference-table">
+                            <div class="fu-row fu-row-red">
+                                <div class="fu-label">①基本符</div>
+                                <div class="fu-value">
+                                    <strong>20符</strong>
+                                    <span class="fu-desc">（どんな手でも必ずつく）</span>
+                                </div>
+                            </div>
+                            <div class="fu-row fu-row-orange">
+                                <div class="fu-label">②アガリ方</div>
+                                <div class="fu-value">
+                                    <div><strong>メンゼンロン</strong> +10符</div>
+                                    <div><strong>ツモ</strong> +2符</div>
+                                </div>
+                            </div>
+                            <div class="fu-row fu-row-yellow">
+                                <div class="fu-label">③面子の種類</div>
+                                <div class="fu-value fu-value-compact">
+                                    <div><strong>順子</strong>（123など）: 0符</div>
+                                    <div><strong>明刻</strong>（ポンした刻子）: 2符 / 1,9,字牌: 4符</div>
+                                    <div><strong>暗刻</strong>（自力で揃えた）: 4符 / 1,9,字牌: 8符</div>
+                                    <div><strong>明槓</strong>: 8符 / 1,9,字牌: 16符</div>
+                                    <div><strong>暗槓</strong>: 16符 / 1,9,字牌: 32符</div>
+                                </div>
+                            </div>
+                            <div class="fu-row fu-row-cyan">
+                                <div class="fu-label">④雀頭</div>
+                                <div class="fu-value">
+                                    <strong>役牌（三元牌・自風・場風）</strong> +2符
+                                </div>
+                            </div>
+                            <div class="fu-row fu-row-blue">
+                                <div class="fu-label">⑤待ちの形</div>
+                                <div class="fu-value fu-value-compact">
+                                    <div><strong>カンチャン待ち</strong>（○ _ ○）: +2符</div>
+                                    <div><strong>ペンチャン待ち</strong>（12の3待ち等）: +2符</div>
+                                    <div><strong>タンキ待ち</strong>（頭待ち）: +2符</div>
+                                </div>
+                            </div>
+                            <div class="fu-row fu-row-gray">
+                                <div class="fu-label">例外</div>
+                                <div class="fu-value">
+                                    <div><strong>ピンフ＋ツモ</strong>: 一律20符</div>
+                                    <div><strong>チートイツ</strong>: 一律25符</div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="fu-note">※合計符は10の位に切り上げ（例: 32符 → 40符）</p>
+                    </details>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 起家選択モーダル -->
+    <div id="dealer-select-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>起家選択</h2>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 1rem;">最初の親を選択してください</p>
+            <div id="dealer-select-buttons" class="target-buttons"></div>
+        </div>
+    </div>
+
+    <!-- 流局モーダル -->
+    <div id="ryukyoku-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>流局</h2>
+
+            <div class="ryukyoku-type">
+                <button id="btn-normal-ryukyoku" class="type-btn active">荒牌流局</button>
+                <button id="btn-途中流局" class="type-btn">途中流局</button>
+            </div>
+
+            <!-- テンパイ選択（荒牌流局時） -->
+            <div id="tenpai-select">
+                <p>テンパイ状態:</p>
+                <div id="tenpai-buttons" class="tenpai-buttons"></div>
+            </div>
+
+            <div class="modal-buttons">
+                <button id="btn-ryukyoku-cancel" class="secondary-btn">キャンセル</button>
+                <button id="btn-ryukyoku-confirm" class="primary-btn">確定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- メニューモーダル -->
+    <div id="menu-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>メニュー</h2>
+            <div class="menu-buttons">
+                <button id="btn-double-ron" class="menu-btn">ダブロン</button>
+                <button id="btn-yaku-list" class="menu-btn">役一覧</button>
+                <button id="btn-chombo" class="menu-btn">チョンボ</button>
+                <button id="btn-end-game" class="menu-btn">終了</button>
+            </div>
+            <div class="modal-buttons">
+                <button id="btn-menu-close" class="secondary-btn">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ダブロンモーダル -->
+    <div id="double-ron-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>ダブロン/トリプルロン</h2>
+
+            <div id="double-ron-step1" class="double-ron-step">
+                <p>放銃者を選択:</p>
+                <div id="double-ron-loser-buttons" class="target-buttons"></div>
+            </div>
+
+            <div id="double-ron-step2" class="double-ron-step" style="display: none;">
+                <p>和了者を選択（複数可）:</p>
+                <div id="double-ron-winner-buttons" class="target-buttons"></div>
+            </div>
+
+            <div id="double-ron-step3" class="double-ron-step" style="display: none;">
+                <p id="double-ron-current-winner">和了者の符翻を入力:</p>
+
+                <!-- 符計算早見表（折りたたみ式） -->
+                <div class="fu-reference-panel double-ron-fu-panel">
+                    <details class="fu-reference-details">
+                        <summary class="fu-reference-title">符計算早見表 ▼</summary>
+                        <div class="fu-reference-table">
+                            <div class="fu-row fu-row-red">
+                                <div class="fu-label">①基本符</div>
+                                <div class="fu-value">
+                                    <strong>20符</strong>
+                                    <span class="fu-desc">（どんな手でも必ずつく）</span>
+                                </div>
+                            </div>
+                            <div class="fu-row fu-row-orange">
+                                <div class="fu-label">②アガリ方</div>
+                                <div class="fu-value">
+                                    <div><strong>メンゼンロン</strong> +10符</div>
+                                    <div><strong>ツモ</strong> +2符</div>
+                                </div>
+                            </div>
+                            <div class="fu-row fu-row-yellow">
+                                <div class="fu-label">③面子</div>
+                                <div class="fu-value fu-value-compact">
+                                    <div><strong>明刻</strong>: 2符 / 1,9,字: 4符</div>
+                                    <div><strong>暗刻</strong>: 4符 / 1,9,字: 8符</div>
+                                </div>
+                            </div>
+                            <div class="fu-row fu-row-gray">
+                                <div class="fu-label">例外</div>
+                                <div class="fu-value">
+                                    <div><strong>ピンフ＋ツモ</strong>: 20符</div>
+                                    <div><strong>チートイツ</strong>: 25符</div>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="input-section">
+                    <label>符:</label>
+                    <div class="fu-buttons double-ron-fu-buttons">
+                        <button class="fu-btn" data-fu="20">20</button>
+                        <button class="fu-btn" data-fu="25">25</button>
+                        <button class="fu-btn active" data-fu="30">30</button>
+                        <button class="fu-btn" data-fu="40">40</button>
+                        <button class="fu-btn" data-fu="50">50</button>
+                        <button class="fu-btn" data-fu="60">60</button>
+                        <button class="fu-btn" data-fu="70">70</button>
+                        <button class="fu-btn" data-fu="80">80</button>
+                        <button class="fu-btn" data-fu="90">90</button>
+                        <button class="fu-btn" data-fu="100">100</button>
+                        <button class="fu-btn" data-fu="110">110</button>
+                    </div>
+                </div>
+                <div class="input-section">
+                    <label>翻:</label>
+                    <div class="han-buttons double-ron-han-buttons">
+                        <button class="han-btn active" data-han="1">1</button>
+                        <button class="han-btn" data-han="2">2</button>
+                        <button class="han-btn" data-han="3">3</button>
+                        <button class="han-btn" data-han="4">4</button>
+                        <button class="han-btn" data-han="5">5</button>
+                        <button class="han-btn" data-han="6">6</button>
+                        <button class="han-btn" data-han="7">7</button>
+                        <button class="han-btn" data-han="8">8</button>
+                        <button class="han-btn" data-han="9">9</button>
+                        <button class="han-btn" data-han="10">10</button>
+                        <button class="han-btn" data-han="11">11</button>
+                        <button class="han-btn" data-han="12">12</button>
+                        <button class="han-btn yakuman-btn" data-han="13">役満</button>
+                        <button class="han-btn yakuman-btn" data-han="26">W役満</button>
+                    </div>
+                </div>
+                <div class="double-ron-actions">
+                    <button id="btn-double-ron-yaku-list" class="secondary-btn">役一覧</button>
+                    <button id="btn-calculator-from-double-ron" class="secondary-btn">計算ツール</button>
+                    <button id="btn-double-ron-next-winner" class="primary-btn">次の和了者へ</button>
+                </div>
+            </div>
+
+            <div class="modal-buttons" style="margin-top: 1rem;">
+                <button id="btn-double-ron-cancel" class="secondary-btn">キャンセル</button>
+                <button id="btn-double-ron-confirm" class="primary-btn" style="display: none;">確定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 終了確認モーダル -->
+    <div id="confirm-end-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>ゲーム終了</h2>
+            <p style="text-align: center; margin: 1rem 0;">現在のゲームを終了しますか？</p>
+            <div class="modal-buttons">
+                <button id="btn-confirm-end-cancel" class="secondary-btn">キャンセル</button>
+                <button id="btn-confirm-end-ok" class="primary-btn">終了する</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- チョンボモーダル -->
+    <div id="chombo-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>チョンボ</h2>
+            <p>罰符対象者を選択:</p>
+            <div id="chombo-buttons" class="target-buttons"></div>
+            <div class="modal-buttons">
+                <button id="btn-chombo-cancel" class="secondary-btn">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 役一覧モーダル -->
+    <div id="yaku-list-modal" class="modal" style="display: none;">
+        <div class="modal-content yaku-list-content">
+            <h2>役一覧</h2>
+            <div class="yaku-list-scroll">
+                <div class="yaku-section">
+                    <h3 class="yaku-section-title">1翻</h3>
+                    <div class="yaku-grid">
+                        <div class="yaku-item">
+                            <span class="yaku-name">リーチ</span>
+                            <span class="yaku-desc">門前テンパイ時に1000点供託で宣言</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">一発</span>
+                            <span class="yaku-desc">リーチ後、1巡以内に和了</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">ツモ</span>
+                            <span class="yaku-desc">門前でツモ和了</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">タンヤオ</span>
+                            <span class="yaku-desc">2〜8の数牌のみで構成</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">平和（ピンフ）</span>
+                            <span class="yaku-desc">順子のみ・役なし雀頭・両面待ち</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">一盃口</span>
+                            <span class="yaku-desc">同じ順子が2組（門前のみ）</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">役牌</span>
+                            <span class="yaku-desc">白發中・自風・場風の刻子</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">嶺上開花</span>
+                            <span class="yaku-desc">カンの嶺上牌で和了</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">槍槓</span>
+                            <span class="yaku-desc">他家の加槓牌でロン</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">海底/河底</span>
+                            <span class="yaku-desc">最後の牌で和了</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="yaku-section">
+                    <h3 class="yaku-section-title">2翻</h3>
+                    <div class="yaku-grid">
+                        <div class="yaku-item">
+                            <span class="yaku-name">ダブルリーチ</span>
+                            <span class="yaku-desc">1巡目にリーチ</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">七対子</span>
+                            <span class="yaku-desc">対子7組（25符固定）</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">三色同順</span>
+                            <span class="yaku-desc">萬筒索で同じ数の順子</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">一気通貫</span>
+                            <span class="yaku-desc">同色で123・456・789</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">対々和</span>
+                            <span class="yaku-desc">刻子4組+雀頭</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">三暗刻</span>
+                            <span class="yaku-desc">暗刻3組</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">三槓子</span>
+                            <span class="yaku-desc">槓子3組</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">チャンタ</span>
+                            <span class="yaku-desc">全面子雀頭に1,9,字牌</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">混老頭</span>
+                            <span class="yaku-desc">1,9,字牌のみで構成</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">小三元</span>
+                            <span class="yaku-desc">白發中の2刻子+1雀頭</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="yaku-section">
+                    <h3 class="yaku-section-title">3翻</h3>
+                    <div class="yaku-grid">
+                        <div class="yaku-item">
+                            <span class="yaku-name">二盃口</span>
+                            <span class="yaku-desc">一盃口が2組（門前のみ）</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">ジュンチャン</span>
+                            <span class="yaku-desc">全面子雀頭に1,9牌（字牌なし）</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">混一色</span>
+                            <span class="yaku-desc">1色の数牌+字牌のみ</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="yaku-section">
+                    <h3 class="yaku-section-title">6翻</h3>
+                    <div class="yaku-grid">
+                        <div class="yaku-item">
+                            <span class="yaku-name">清一色</span>
+                            <span class="yaku-desc">1色の数牌のみ</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="yaku-section">
+                    <h3 class="yaku-section-title yaku-section-yakuman">役満</h3>
+                    <div class="yaku-grid">
+                        <div class="yaku-item">
+                            <span class="yaku-name">国士無双</span>
+                            <span class="yaku-desc">1,9,字牌13種+任意1枚</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">四暗刻</span>
+                            <span class="yaku-desc">暗刻4組</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">大三元</span>
+                            <span class="yaku-desc">白發中の刻子3組</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">小四喜</span>
+                            <span class="yaku-desc">風牌3刻子+1雀頭</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">大四喜</span>
+                            <span class="yaku-desc">風牌4刻子</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">字一色</span>
+                            <span class="yaku-desc">字牌のみで構成</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">緑一色</span>
+                            <span class="yaku-desc">索子234・6・8と發のみ</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">清老頭</span>
+                            <span class="yaku-desc">1,9牌のみで構成</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">九蓮宝燈</span>
+                            <span class="yaku-desc">1色で1112345678999+1</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">四槓子</span>
+                            <span class="yaku-desc">槓子4組</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">天和</span>
+                            <span class="yaku-desc">親の配牌で和了</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">地和</span>
+                            <span class="yaku-desc">子の1巡目ツモで和了</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button id="btn-yaku-list-close" class="secondary-btn">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 結果画面 -->
+    <div id="result-screen" class="screen" style="display: none;">
+        <div class="result-container">
+            <h1>ゲーム終了</h1>
+            <div id="result-list"></div>
+            <button id="btn-back-to-setup" class="primary-btn">タイトルへ戻る</button>
+        </div>
+    </div>
+    <!-- 点数計算ツールモーダル (直接埋め込み) -->
+    <div id="calculator-modal" class="modal" style="display: none;">
+        <div class="modal-content calculator-modal-content">
+            <div class="calculator-header">
+                <h2>点数計算ツール</h2>
+                <button id="btn-calculator-close" class="close-btn">✕</button>
+            </div>
+
+            <div class="calc-container">
+                <!-- 手牌入力エリア -->
+                <div class="calc-section">
+                    <div class="calc-section-header">
+                        <span>手牌を入力</span>
+                        <span id="calc-tile-count">0/14枚</span>
+                        <button id="calc-clear-hand" class="calc-btn-small">クリア</button>
+                    </div>
+                    <div id="calc-hand-display" class="calc-hand-display">
+                        <div class="calc-hand-tiles" id="calc-hand-tiles"></div>
+                        <div class="calc-agari-tile" id="calc-agari-tile"></div>
+                    </div>
+                </div>
+
+                <!-- 牌選択エリア -->
+                <div class="calc-section calc-tile-section">
+                    <div class="calc-tile-selector" id="calc-tile-selector">
+                        <div class="calc-tile-row">
+                            <span class="calc-tile-label">萬</span>
+                            <div class="calc-tiles-group" data-suit="m"></div>
+                        </div>
+                        <div class="calc-tile-row">
+                            <span class="calc-tile-label">筒</span>
+                            <div class="calc-tiles-group" data-suit="p"></div>
+                        </div>
+                        <div class="calc-tile-row">
+                            <span class="calc-tile-label">索</span>
+                            <div class="calc-tiles-group" data-suit="s"></div>
+                        </div>
+                        <div class="calc-tile-row">
+                            <span class="calc-tile-label">字</span>
+                            <div class="calc-tiles-group" data-suit="z"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 副露 -->
+                <div class="calc-section">
+                    <div class="calc-section-header">副露（鳴き）</div>
+                    <div id="calc-melds-display" class="calc-melds-display"></div>
+                    <div class="calc-meld-buttons">
+                        <button id="calc-add-pon" class="calc-option-btn">ポン</button>
+                        <button id="calc-add-chi" class="calc-option-btn">チー</button>
+                        <button id="calc-add-kan" class="calc-option-btn">カン</button>
+                    </div>
+                </div>
+
+                <!-- 条件設定 -->
+                <div class="calc-section calc-options-section">
+                    <div class="calc-options-row">
+                        <div class="calc-option-group-inline">
+                            <button id="calc-agari-tsumo" class="calc-option-btn active">ツモ</button>
+                            <button id="calc-agari-ron" class="calc-option-btn">ロン</button>
+                        </div>
+                        <div class="calc-option-group-inline">
+                            <button id="calc-bakaze-1" class="calc-option-btn small active">東場</button>
+                            <button id="calc-bakaze-2" class="calc-option-btn small">南場</button>
+                        </div>
+                        <div class="calc-option-group-inline">
+                            <button id="calc-jikaze-1" class="calc-option-btn small active">東家</button>
+                            <button id="calc-jikaze-2" class="calc-option-btn small">南家</button>
+                            <button id="calc-jikaze-3" class="calc-option-btn small">西家</button>
+                            <button id="calc-jikaze-4" class="calc-option-btn small">北家</button>
+                        </div>
+                    </div>
+                    <div class="calc-options-row">
+                        <span class="calc-option-label">ドラ</span>
+                        <div class="calc-counter">
+                            <button id="calc-dora-minus" class="calc-counter-btn">−</button>
+                            <span id="calc-dora-count">0</span>
+                            <button id="calc-dora-plus" class="calc-counter-btn">+</button>
+                        </div>
+                    </div>
+                    <div class="calc-options-row calc-toggle-row">
+                        <button id="calc-riichi" class="calc-option-btn toggle-btn">リーチ</button>
+                        <button id="calc-ippatsu" class="calc-option-btn toggle-btn">一発</button>
+                        <button id="calc-double-riichi" class="calc-option-btn toggle-btn">ダブリー</button>
+                        <button id="calc-rinshan" class="calc-option-btn toggle-btn">嶺上</button>
+                        <button id="calc-chankan" class="calc-option-btn toggle-btn">槍槓</button>
+                        <button id="calc-haitei" class="calc-option-btn toggle-btn">海底/河底</button>
+                    </div>
+                </div>
+
+                <!-- 計算ボタン -->
+                <button id="calc-calculate-btn" class="primary-btn">点数を計算</button>
+
+                <!-- 結果表示エリア -->
+                <div id="calc-result-section" class="calc-result-section" style="display: none;">
+                    <div class="calc-result-card">
+                        <div class="calc-result-main">
+                            <span class="calc-result-label" id="calc-result-label">子・ツモ</span>
+                            <span class="calc-result-score" id="calc-result-score">--</span>
+                        </div>
+                        <div class="calc-result-payment" id="calc-result-payment"></div>
+                    </div>
+                    <div class="calc-result-detail">
+                        <div class="calc-breakdown-fu" id="calc-breakdown-fu"></div>
+                        <div class="calc-breakdown-han" id="calc-breakdown-han"></div>
+                        <div class="calc-breakdown-yaku" id="calc-breakdown-yaku"></div>
+                    </div>
+                    <button id="calc-send-result" class="calc-accent-btn">結果を管理ツールに反映</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 立直音声 -->
+
+
+    <audio id="riichi-sound"></audio>
+
+    <script>
+// ======================================
+// 統合JavaScript（単一ファイル版）
+// ======================================
+
+// ========== tiles.js ==========
+/**
+ * tiles.js - 麻雀牌のデータ定義
+ */
+
+// 牌の定義
+const TILES = {
+    // 萬子 (m = man)
+    m: ['1m', '2m', '3m', '4m', '5m', '6m', '7m', '8m', '9m'],
+    // 筒子 (p = pin)
+    p: ['1p', '2p', '3p', '4p', '5p', '6p', '7p', '8p', '9p'],
+    // 索子 (s = sou)
+    s: ['1s', '2s', '3s', '4s', '5s', '6s', '7s', '8s', '9s'],
+    // 字牌 (z = jihai): 東南西北白發中
+    z: ['1z', '2z', '3z', '4z', '5z', '6z', '7z']
+};
+
+// 牌の表示名
+const TILE_NAMES = {
+    '1m': '一萬', '2m': '二萬', '3m': '三萬', '4m': '四萬', '5m': '五萬',
+    '6m': '六萬', '7m': '七萬', '8m': '八萬', '9m': '九萬',
+    '1p': '一筒', '2p': '二筒', '3p': '三筒', '4p': '四筒', '5p': '五筒',
+    '6p': '六筒', '7p': '七筒', '8p': '八筒', '9p': '九筒',
+    '1s': '一索', '2s': '二索', '3s': '三索', '4s': '四索', '5s': '五索',
+    '6s': '六索', '7s': '七索', '8s': '八索', '9s': '九索',
+    '1z': '東', '2z': '南', '3z': '西', '4z': '北', '5z': '白', '6z': '發', '7z': '中'
+};
+
+// 牌の表示文字（シンプル版）
+const TILE_CHARS = {
+    '1m': '一', '2m': '二', '3m': '三', '4m': '四', '5m': '五',
+    '6m': '六', '7m': '七', '8m': '八', '9m': '九',
+    '1p': '①', '2p': '②', '3p': '③', '4p': '④', '5p': '⑤',
+    '6p': '⑥', '7p': '⑦', '8p': '⑧', '9p': '⑨',
+    '1s': '1', '2s': '2', '3s': '3', '4s': '4', '5s': '5',
+    '6s': '6', '7s': '7', '8s': '8', '9s': '9',
+    '1z': '東', '2z': '南', '3z': '西', '4z': '北', '5z': '白', '6z': '發', '7z': '中'
+};
+
+// 三麻用牌（2-8萬なし）
+const TILES_SANMA = {
+    m: ['1m', '9m'],
+    p: ['1p', '2p', '3p', '4p', '5p', '6p', '7p', '8p', '9p'],
+    s: ['1s', '2s', '3s', '4s', '5s', '6s', '7s', '8s', '9s'],
+    z: ['1z', '2z', '3z', '4z', '5z', '6z', '7z']
+};
+
+// 風の名前
+const WIND_NAMES = {
+    1: '東', 2: '南', 3: '西', 4: '北'
+};
+
+/**
+ * 牌文字列をパースする
+ * 例: "123m456p789s11z" -> ['1m', '2m', '3m', '4p', '5p', '6p', '7s', '8s', '9s', '1z', '1z']
+ */
+function parseTileString(str) {
+    const tiles = [];
+    let nums = '';
+    
+    for (const char of str) {
+        if ('mpszMPSZ'.includes(char)) {
+            const suit = char.toLowerCase();
+            for (const num of nums) {
+                tiles.push(num + suit);
+            }
+            nums = '';
+        } else if ('0123456789'.includes(char)) {
+            nums += char;
+        }
+    }
+    
+    return tiles;
+}
+
+/**
+ * 牌配列を文字列に変換
+ * 例: ['1m', '2m', '3m'] -> "123m"
+ */
+function tilesToString(tiles) {
+    const groups = { m: [], p: [], s: [], z: [] };
+    
+    for (const tile of tiles) {
+        const num = tile[0];
+        const suit = tile[1];
+        if (groups[suit]) {
+            groups[suit].push(num);
+        }
+    }
+    
+    let result = '';
+    for (const suit of ['m', 'p', 's', 'z']) {
+        if (groups[suit].length > 0) {
+            result += groups[suit].sort().join('') + suit;
+        }
+    }
+    
+    return result;
+}
+
+/**
+ * 牌を数値に変換（ソート用）
+ */
+function tileToNumber(tile) {
+    const num = parseInt(tile[0]);
+    const suit = tile[1];
+    const suitOrder = { m: 0, p: 100, s: 200, z: 300 };
+    return suitOrder[suit] + num;
+}
+
+/**
+ * 牌をソート
+ */
+function sortTiles(tiles) {
+    return [...tiles].sort((a, b) => tileToNumber(a) - tileToNumber(b));
+}
+
+/**
+ * 特定の牌の残り枚数を計算
+ */
+function countRemainingTiles(tile, usedTiles) {
+    const used = usedTiles.filter(t => t === tile).length;
+    return 4 - used;
+}
+
+/**
+ * 牌が数牌かどうか
+ */
+function isNumberTile(tile) {
+    return 'mps'.includes(tile[1]);
+}
+
+/**
+ * 牌が字牌かどうか
+ */
+function isHonorTile(tile) {
+    return tile[1] === 'z';
+}
+
+/**
+ * 牌が么九牌かどうか
+ */
+function isTerminalOrHonor(tile) {
+    if (isHonorTile(tile)) return true;
+    const num = parseInt(tile[0]);
+    return num === 1 || num === 9;
+}
+
+/**
+ * 牌が老頭牌（1,9）かどうか
+ */
+function isTerminal(tile) {
+    if (isHonorTile(tile)) return false;
+    const num = parseInt(tile[0]);
+    return num === 1 || num === 9;
+}
+
+/**
+ * 牌が中張牌（2-8）かどうか
+ */
+function isSimple(tile) {
+    if (isHonorTile(tile)) return false;
+    const num = parseInt(tile[0]);
+    return num >= 2 && num <= 8;
+}
+
+// ========== yaku.js ==========
+/**
+ * yaku.js - 役判定ロジック
+ * 参考: riichi ライブラリ (https://github.com/takayama-lily/riichi)
+ */
+
+// 役の定義
+const YAKU = {
+    // 1翻役
+    riichi: { name: 'リーチ', han: 1, menzen: true },
+    ippatsu: { name: '一発', han: 1, menzen: true },
+    tsumo: { name: '門前清自摸和', han: 1, menzen: true },
+    tanyao: { name: '断么九', han: 1, menzen: false },
+    pinfu: { name: '平和', han: 1, menzen: true },
+    iipeikou: { name: '一盃口', han: 1, menzen: true },
+    bakaze: { name: '場風牌', han: 1, menzen: false },
+    jikaze: { name: '自風牌', han: 1, menzen: false },
+    haku: { name: '白', han: 1, menzen: false },
+    hatsu: { name: '發', han: 1, menzen: false },
+    chun: { name: '中', han: 1, menzen: false },
+    chankan: { name: '槍槓', han: 1, menzen: false },
+    rinshan: { name: '嶺上開花', han: 1, menzen: false },
+    haitei: { name: '海底摸月', han: 1, menzen: false },
+    houtei: { name: '河底撈魚', han: 1, menzen: false },
+
+    // 2翻役
+    doubleRiichi: { name: 'ダブル立直', han: 2, menzen: true },
+    chiitoitsu: { name: '七対子', han: 2, menzen: true },
+    toitoi: { name: '対々和', han: 2, menzen: false },
+    sanankou: { name: '三暗刻', han: 2, menzen: false },
+    sanshokudoukou: { name: '三色同刻', han: 2, menzen: false },
+    sankantsu: { name: '三槓子', han: 2, menzen: false },
+    honroutou: { name: '混老頭', han: 2, menzen: false },
+    shousangen: { name: '小三元', han: 2, menzen: false },
+    chanta: { name: '混全帯么九', han: 2, menzen: true, kuisagari: 1 },
+    ittsu: { name: '一気通貫', han: 2, menzen: true, kuisagari: 1 },
+    sanshokudoujun: { name: '三色同順', han: 2, menzen: true, kuisagari: 1 },
+
+    // 3翻役
+    ryanpeikou: { name: '二盃口', han: 3, menzen: true },
+    junchan: { name: '純全帯么九', han: 3, menzen: true, kuisagari: 1 },
+    honitsu: { name: '混一色', han: 3, menzen: true, kuisagari: 1 },
+
+    // 6翻役
+    chinitsu: { name: '清一色', han: 6, menzen: true, kuisagari: 1 },
+
+    // 役満
+    kokushi: { name: '国士無双', han: 13, menzen: true, yakuman: true },
+    kokushi13: { name: '国士無双十三面', han: 26, menzen: true, yakuman: true },
+    suuankou: { name: '四暗刻', han: 13, menzen: true, yakuman: true },
+    suuankouTanki: { name: '四暗刻単騎', han: 26, menzen: true, yakuman: true },
+    daisangen: { name: '大三元', han: 13, menzen: false, yakuman: true },
+    shousuushi: { name: '小四喜', han: 13, menzen: false, yakuman: true },
+    daisuushi: { name: '大四喜', han: 26, menzen: false, yakuman: true },
+    tsuuiisou: { name: '字一色', han: 13, menzen: false, yakuman: true },
+    chinroutou: { name: '清老頭', han: 13, menzen: false, yakuman: true },
+    ryuuiisou: { name: '緑一色', han: 13, menzen: false, yakuman: true },
+    chuuren: { name: '九蓮宝燈', han: 13, menzen: true, yakuman: true },
+    chuuren9: { name: '純正九蓮宝燈', han: 26, menzen: true, yakuman: true },
+    suukantsu: { name: '四槓子', han: 13, menzen: false, yakuman: true },
+    tenhou: { name: '天和', han: 13, menzen: true, yakuman: true },
+    chiihou: { name: '地和', han: 13, menzen: true, yakuman: true }
+};
+
+/**
+ * 手牌から面子を分解する
+ * @param {Array} tiles - 手牌（ソート済み）
+ * @returns {Array} 可能な分解パターンの配列
+ */
+function decompose(tiles) {
+    const results = [];
+
+    // 各牌の枚数をカウント
+    const counts = {};
+    for (const tile of tiles) {
+        counts[tile] = (counts[tile] || 0) + 1;
+    }
+
+    // 雀頭候補を探す
+    const pairs = Object.keys(counts).filter(t => counts[t] >= 2);
+
+    for (const pair of pairs) {
+        const remaining = [...tiles];
+        // 雀頭を取り除く
+        remaining.splice(remaining.indexOf(pair), 1);
+        remaining.splice(remaining.indexOf(pair), 1);
+
+        // 残りを面子に分解
+        const mentsu = extractMentsu(remaining);
+        if (mentsu) {
+            results.push({
+                head: pair,
+                mentsu: mentsu.mentsu,
+                type: 'regular'
+            });
+        }
+    }
+
+    // 七対子の判定
+    if (tiles.length === 14) {
+        const pairCount = Object.values(counts).filter(c => c === 2).length;
+        if (pairCount === 7 && Object.keys(counts).length === 7) {
+            results.push({
+                head: null,
+                mentsu: [],
+                type: 'chiitoitsu',
+                pairs: Object.keys(counts)
+            });
+        }
+    }
+
+    // 国士無双の判定
+    if (isKokushi(tiles)) {
+        results.push({
+            head: null,
+            mentsu: [],
+            type: 'kokushi'
+        });
+    }
+
+    return results;
+}
+
+/**
+ * 面子を抽出
+ */
+function extractMentsu(tiles) {
+    if (tiles.length === 0) {
+        return { mentsu: [] };
+    }
+
+    if (tiles.length % 3 !== 0) {
+        return null;
+    }
+
+    const sorted = sortTiles(tiles);
+    const counts = {};
+    for (const tile of sorted) {
+        counts[tile] = (counts[tile] || 0) + 1;
+    }
+
+    return tryExtract(counts, []);
+}
+
+function tryExtract(counts, mentsu) {
+    // すべての牌がなくなったら成功
+    const remaining = Object.entries(counts).filter(([_, c]) => c > 0);
+    if (remaining.length === 0) {
+        return { mentsu };
+    }
+
+    // 最も小さい牌から処理
+    const [tile, count] = remaining[0];
+
+    // 刻子を試す
+    if (count >= 3) {
+        const newCounts = { ...counts };
+        newCounts[tile] -= 3;
+        const result = tryExtract(newCounts, [...mentsu, { type: 'koutsu', tiles: [tile, tile, tile] }]);
+        if (result) return result;
+    }
+
+    // 順子を試す（数牌のみ）
+    if (isNumberTile(tile)) {
+        const num = parseInt(tile[0]);
+        const suit = tile[1];
+        const next1 = (num + 1) + suit;
+        const next2 = (num + 2) + suit;
+
+        if (num <= 7 && counts[next1] > 0 && counts[next2] > 0) {
+            const newCounts = { ...counts };
+            newCounts[tile] -= 1;
+            newCounts[next1] -= 1;
+            newCounts[next2] -= 1;
+            const result = tryExtract(newCounts, [...mentsu, { type: 'shuntsu', tiles: [tile, next1, next2] }]);
+            if (result) return result;
+        }
+    }
+
+    return null;
+}
+
+/**
+ * 国士無双の判定
+ */
+function isKokushi(tiles) {
+    if (tiles.length !== 14) return false;
+
+    const yaochuuhai = [
+        '1m', '9m', '1p', '9p', '1s', '9s',
+        '1z', '2z', '3z', '4z', '5z', '6z', '7z'
+    ];
+
+    const counts = {};
+    for (const tile of tiles) {
+        counts[tile] = (counts[tile] || 0) + 1;
+    }
+
+    // すべての么九牌が含まれ、1種類だけ2枚
+    let hasPair = false;
+    for (const yaochu of yaochuuhai) {
+        const count = counts[yaochu] || 0;
+        if (count === 0) return false;
+        if (count === 2) {
+            if (hasPair) return false; // 2種類以上対子があったらダメ
+            hasPair = true;
+        }
+        if (count > 2) return false;
+    }
+
+    return hasPair;
+}
+
+/**
+ * 役を判定する
+ * @param {Object} hand - 手牌情報
+ * @param {Object} options - ゲームオプション
+ * @returns {Array} 成立した役のリスト
+ */
+function judgeYaku(hand, options) {
+    const yakuList = [];
+    const decompositions = decompose(hand.tiles);
+
+    if (decompositions.length === 0) {
+        return { error: true, message: '和了形ではありません' };
+    }
+
+    // 最も点数が高くなる分解を選ぶ
+    let bestResult = null;
+    let bestScore = -1;
+
+    for (const dec of decompositions) {
+        const result = judgeWithDecomposition(hand, dec, options);
+        if (result.totalHan > bestScore ||
+            (result.totalHan === bestScore && result.fu > (bestResult?.fu || 0))) {
+            bestResult = result;
+            bestScore = result.totalHan;
+        }
+    }
+
+    return bestResult;
+}
+
+function judgeWithDecomposition(hand, decomposition, options) {
+    const yakuList = [];
+    const isMenzen = hand.melds.length === 0;
+
+    // 特殊形
+    if (decomposition.type === 'kokushi') {
+        yakuList.push({ ...YAKU.kokushi });
+        return { yakuList, totalHan: 13, fu: 0, yakuman: true };
+    }
+
+    if (decomposition.type === 'chiitoitsu') {
+        yakuList.push({ ...YAKU.chiitoitsu });
+        // 七対子の追加役を判定
+        const additionalYaku = judgeChiitoitsuYaku(decomposition.pairs, options, isMenzen);
+        yakuList.push(...additionalYaku);
+    }
+
+    // 通常形
+    if (decomposition.type === 'regular') {
+        const regularYaku = judgeRegularYaku(hand, decomposition, options, isMenzen);
+        yakuList.push(...regularYaku);
+    }
+
+    // 状況役（リーチ、一発など）
+    if (options.riichi && isMenzen) {
+        if (options.doubleRiichi) {
+            yakuList.push({ ...YAKU.doubleRiichi });
+        } else {
+            yakuList.push({ ...YAKU.riichi });
+        }
+    }
+
+    if (options.ippatsu && options.riichi && isMenzen) {
+        yakuList.push({ ...YAKU.ippatsu });
+    }
+
+    if (options.tsumo && isMenzen) {
+        yakuList.push({ ...YAKU.tsumo });
+    }
+
+    if (options.rinshan) {
+        yakuList.push({ ...YAKU.rinshan });
+    }
+
+    if (options.chankan) {
+        yakuList.push({ ...YAKU.chankan });
+    }
+
+    if (options.haitei) {
+        if (options.tsumo) {
+            yakuList.push({ ...YAKU.haitei });
+        } else {
+            yakuList.push({ ...YAKU.houtei });
+        }
+    }
+
+    if (options.tenhou) {
+        yakuList.push({ ...YAKU.tenhou });
+    }
+
+    // 翻数を計算
+    let totalHan = 0;
+    let isYakuman = false;
+
+    for (const yaku of yakuList) {
+        if (yaku.yakuman) {
+            isYakuman = true;
+        }
+        let han = yaku.han;
+        // 食い下がり
+        if (!isMenzen && yaku.kuisagari) {
+            han -= yaku.kuisagari;
+        }
+        totalHan += han;
+    }
+
+    // ドラを追加
+    totalHan += options.doraCount || 0;
+
+    return {
+        yakuList,
+        totalHan,
+        decomposition,
+        yakuman: isYakuman
+    };
+}
+
+/**
+ * 七対子の追加役を判定
+ */
+function judgeChiitoitsuYaku(pairs, options, isMenzen) {
+    const yakuList = [];
+
+    // 断么九
+    if (pairs.every(t => isSimple(t))) {
+        yakuList.push({ ...YAKU.tanyao });
+    }
+
+    // 混一色
+    const suits = new Set(pairs.map(t => t[1]));
+    const hasHonor = pairs.some(t => isHonorTile(t));
+    const numberSuits = [...suits].filter(s => s !== 'z');
+
+    if (numberSuits.length === 1 && hasHonor) {
+        yakuList.push({ ...YAKU.honitsu });
+    }
+
+    // 清一色
+    if (numberSuits.length === 1 && !hasHonor) {
+        yakuList.push({ ...YAKU.chinitsu });
+    }
+
+    // 混老頭
+    if (pairs.every(t => isTerminalOrHonor(t))) {
+        yakuList.push({ ...YAKU.honroutou });
+    }
+
+    return yakuList;
+}
+
+/**
+ * 通常形の役を判定
+ */
+function judgeRegularYaku(hand, decomposition, options, isMenzen) {
+    const yakuList = [];
+    const { head, mentsu } = decomposition;
+    const allMentsu = [...mentsu, ...hand.melds];
+
+    // 断么九
+    const allTiles = [head, head, ...allMentsu.flatMap(m => m.tiles)];
+    if (allTiles.every(t => isSimple(t))) {
+        yakuList.push({ ...YAKU.tanyao });
+    }
+
+    // 平和
+    if (isMenzen && isPinfu(decomposition, hand.agariTile, options)) {
+        yakuList.push({ ...YAKU.pinfu });
+    }
+
+    // 一盃口・二盃口
+    if (isMenzen) {
+        const shuntsuList = mentsu.filter(m => m.type === 'shuntsu');
+        const peikouCount = countPeikou(shuntsuList);
+        if (peikouCount === 2) {
+            yakuList.push({ ...YAKU.ryanpeikou });
+        } else if (peikouCount === 1) {
+            yakuList.push({ ...YAKU.iipeikou });
+        }
+    }
+
+    // 対々和
+    const koutsuCount = allMentsu.filter(m => m.type === 'koutsu' || m.type === 'kantsu').length;
+    if (koutsuCount === 4) {
+        yakuList.push({ ...YAKU.toitoi });
+    }
+
+    // 三暗刻・四暗刻
+    const ankouCount = countAnkou(mentsu, hand.melds, options.tsumo, hand.agariTile);
+    if (ankouCount === 4) {
+        yakuList.push({ ...YAKU.suuankou });
+    } else if (ankouCount === 3) {
+        yakuList.push({ ...YAKU.sanankou });
+    }
+
+    // 役牌
+    const yakuhaiYaku = judgeYakuhai(allMentsu, options);
+    yakuList.push(...yakuhaiYaku);
+
+    // 三元牌関連
+    const sangenYaku = judgeSangen(allMentsu);
+    yakuList.push(...sangenYaku);
+
+    // 一気通貫
+    if (hasIttsu(allMentsu)) {
+        yakuList.push({ ...YAKU.ittsu });
+    }
+
+    // 三色同順
+    if (hasSanshoku(allMentsu)) {
+        yakuList.push({ ...YAKU.sanshokudoujun });
+    }
+
+    // 三色同刻
+    if (hasSanshokuDoukou(allMentsu)) {
+        yakuList.push({ ...YAKU.sanshokudoukou });
+    }
+
+    // 混全帯・純全帯
+    const chantaType = judgeChanta(head, allMentsu);
+    if (chantaType === 'junchan') {
+        yakuList.push({ ...YAKU.junchan });
+    } else if (chantaType === 'chanta') {
+        yakuList.push({ ...YAKU.chanta });
+    }
+
+    // 混老頭
+    if (allTiles.every(t => isTerminalOrHonor(t)) && koutsuCount >= 1) {
+        yakuList.push({ ...YAKU.honroutou });
+    }
+
+    // 混一色・清一色
+    const itsuType = judgeItsu(allTiles);
+    if (itsuType === 'chinitsu') {
+        yakuList.push({ ...YAKU.chinitsu });
+    } else if (itsuType === 'honitsu') {
+        yakuList.push({ ...YAKU.honitsu });
+    }
+
+    // 小三元
+    if (hasShousangen(allMentsu, head)) {
+        yakuList.push({ ...YAKU.shousangen });
+    }
+
+    return yakuList;
+}
+
+/**
+ * 平和の判定
+ */
+function isPinfu(decomposition, agariTile, options) {
+    const { head, mentsu } = decomposition;
+
+    // すべて順子
+    if (!mentsu.every(m => m.type === 'shuntsu')) {
+        return false;
+    }
+
+    // 雀頭が役牌でない
+    if (isYakuhai(head, options.bakaze, options.jikaze)) {
+        return false;
+    }
+
+    // 両面待ち
+    // アガリ牌を含む順子を探す
+    for (const m of mentsu) {
+        if (m.tiles.includes(agariTile)) {
+            const num = parseInt(agariTile[0]);
+            const firstNum = parseInt(m.tiles[0][0]);
+            // 嵌張・辺張でない
+            if (num === firstNum + 1) return false; // 嵌張
+            if (num === firstNum && firstNum === 7) return false; // 辺張 789
+            if (num === firstNum + 2 && firstNum === 1) return false; // 辺張 123
+        }
+    }
+
+    return true;
+}
+
+/**
+ * 役牌かどうか
+ */
+function isYakuhai(tile, bakaze, jikaze) {
+    if (!isHonorTile(tile)) return false;
+    const num = parseInt(tile[0]);
+    // 三元牌
+    if (num >= 5) return true;
+    // 場風・自風
+    if (num === bakaze || num === jikaze) return true;
+    return false;
+}
+
+/**
+ * 盃口のカウント
+ */
+function countPeikou(shuntsuList) {
+    const signatures = shuntsuList.map(m => m.tiles[0]);
+    const counts = {};
+    for (const sig of signatures) {
+        counts[sig] = (counts[sig] || 0) + 1;
+    }
+    return Object.values(counts).filter(c => c >= 2).reduce((acc, c) => acc + Math.floor(c / 2), 0);
+}
+
+/**
+ * 暗刻のカウント
+ */
+function countAnkou(mentsu, melds, isTsumo, agariTile) {
+    let count = 0;
+
+    // 手牌の刻子
+    for (const m of mentsu) {
+        if (m.type === 'koutsu') {
+            // ロンの場合、アガリ牌を含む刻子は明刻扱い
+            if (!isTsumo && m.tiles.includes(agariTile)) {
+                continue;
+            }
+            count++;
+        }
+    }
+
+    // 副露の暗槓
+    for (const m of melds) {
+        if (m.type === 'ankan') {
+            count++;
+        }
+    }
+
+    return count;
+}
+
+/**
+ * 役牌の判定
+ */
+function judgeYakuhai(allMentsu, options) {
+    const yakuList = [];
+
+    for (const m of allMentsu) {
+        if (m.type !== 'koutsu' && m.type !== 'kantsu') continue;
+        const tile = m.tiles[0];
+        if (!isHonorTile(tile)) continue;
+
+        const num = parseInt(tile[0]);
+
+        // 場風
+        if (num === options.bakaze) {
+            yakuList.push({ ...YAKU.bakaze });
+        }
+
+        // 自風
+        if (num === options.jikaze) {
+            yakuList.push({ ...YAKU.jikaze });
+        }
+
+        // 三元牌
+        if (num === 5) yakuList.push({ ...YAKU.haku });
+        if (num === 6) yakuList.push({ ...YAKU.hatsu });
+        if (num === 7) yakuList.push({ ...YAKU.chun });
+    }
+
+    return yakuList;
+}
+
+/**
+ * 三元牌関連の役
+ */
+function judgeSangen(allMentsu) {
+    const yakuList = [];
+    let sangenCount = 0;
+
+    for (const m of allMentsu) {
+        if (m.type !== 'koutsu' && m.type !== 'kantsu') continue;
+        const tile = m.tiles[0];
+        const num = parseInt(tile[0]);
+        if (tile[1] === 'z' && num >= 5) {
+            sangenCount++;
+        }
+    }
+
+    if (sangenCount === 3) {
+        yakuList.push({ ...YAKU.daisangen });
+    }
+
+    return yakuList;
+}
+
+/**
+ * 小三元の判定
+ */
+function hasShousangen(allMentsu, head) {
+    let sangenKoutsu = 0;
+
+    for (const m of allMentsu) {
+        if (m.type !== 'koutsu' && m.type !== 'kantsu') continue;
+        const tile = m.tiles[0];
+        const num = parseInt(tile[0]);
+        if (tile[1] === 'z' && num >= 5) {
+            sangenKoutsu++;
+        }
+    }
+
+    // 雀頭が三元牌
+    if (head[1] === 'z' && parseInt(head[0]) >= 5) {
+        return sangenKoutsu === 2;
+    }
+
+    return false;
+}
+
+/**
+ * 一気通貫の判定
+ */
+function hasIttsu(allMentsu) {
+    const shuntsuBySuit = { m: [], p: [], s: [] };
+
+    for (const m of allMentsu) {
+        if (m.type !== 'shuntsu') continue;
+        const suit = m.tiles[0][1];
+        const startNum = parseInt(m.tiles[0][0]);
+        if (shuntsuBySuit[suit]) {
+            shuntsuBySuit[suit].push(startNum);
+        }
+    }
+
+    for (const suit of ['m', 'p', 's']) {
+        const starts = shuntsuBySuit[suit];
+        if (starts.includes(1) && starts.includes(4) && starts.includes(7)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * 三色同順の判定
+ */
+function hasSanshoku(allMentsu) {
+    const shuntsuBySuit = { m: new Set(), p: new Set(), s: new Set() };
+
+    for (const m of allMentsu) {
+        if (m.type !== 'shuntsu') continue;
+        const suit = m.tiles[0][1];
+        const startNum = parseInt(m.tiles[0][0]);
+        if (shuntsuBySuit[suit]) {
+            shuntsuBySuit[suit].add(startNum);
+        }
+    }
+
+    for (let i = 1; i <= 7; i++) {
+        if (shuntsuBySuit.m.has(i) && shuntsuBySuit.p.has(i) && shuntsuBySuit.s.has(i)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * 三色同刻の判定
+ */
+function hasSanshokuDoukou(allMentsu) {
+    const koutsuBySuit = { m: new Set(), p: new Set(), s: new Set() };
+
+    for (const m of allMentsu) {
+        if (m.type !== 'koutsu' && m.type !== 'kantsu') continue;
+        const tile = m.tiles[0];
+        if (isHonorTile(tile)) continue;
+        const suit = tile[1];
+        const num = parseInt(tile[0]);
+        koutsuBySuit[suit].add(num);
+    }
+
+    for (let i = 1; i <= 9; i++) {
+        if (koutsuBySuit.m.has(i) && koutsuBySuit.p.has(i) && koutsuBySuit.s.has(i)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * 混全帯・純全帯の判定
+ */
+function judgeChanta(head, allMentsu) {
+    // 雀頭が么九牌か
+    if (!isTerminalOrHonor(head)) return null;
+
+    let hasHonor = isHonorTile(head);
+
+    for (const m of allMentsu) {
+        // 面子に么九牌が含まれているか
+        const hasTerHon = m.tiles.some(t => isTerminalOrHonor(t));
+        if (!hasTerHon) return null;
+
+        if (m.tiles.some(t => isHonorTile(t))) {
+            hasHonor = true;
+        }
+    }
+
+    return hasHonor ? 'chanta' : 'junchan';
+}
+
+/**
+ * 混一色・清一色の判定
+ */
+function judgeItsu(allTiles) {
+    const suits = new Set(allTiles.filter(t => t).map(t => t[1]));
+    const hasHonor = suits.has('z');
+    const numberSuits = [...suits].filter(s => s !== 'z');
+
+    if (numberSuits.length !== 1) return null;
+
+    return hasHonor ? 'honitsu' : 'chinitsu';
+}
+
+// ========== fu-calculator.js ==========
+/**
+ * fu-calculator.js - 符計算ロジック
+ * 参考: riichi ライブラリ
+ */
+
+/**
+ * 符を計算する
+ * @param {Object} decomposition - 手牌分解結果
+ * @param {Object} hand - 手牌情報
+ * @param {Object} options - ゲームオプション
+ * @returns {Object} 符と内訳
+ */
+function calculateFu(decomposition, hand, options) {
+    // 七対子は固定25符
+    if (decomposition.type === 'chiitoitsu') {
+        return {
+            total: 25,
+            breakdown: [{ name: '七対子', fu: 25 }]
+        };
+    }
+
+    // 国士無双は符計算なし
+    if (decomposition.type === 'kokushi') {
+        return {
+            total: 0,
+            breakdown: []
+        };
+    }
+
+    const breakdown = [];
+    let baseFu = 20;
+    breakdown.push({ name: '副底', fu: 20 });
+
+    const isMenzen = hand.melds.length === 0;
+    const isTsumo = options.tsumo;
+    const { head, mentsu } = decomposition;
+    const allMentsu = [...mentsu, ...hand.melds];
+
+    // 面子の符
+    for (const m of allMentsu) {
+        const fu = calculateMentsuFu(m, isTsumo, hand.agariTile);
+        if (fu > 0) {
+            breakdown.push({ name: getMentsuName(m), fu });
+            baseFu += fu;
+        }
+    }
+
+    // 雀頭の符
+    const headFu = calculateHeadFu(head, options);
+    if (headFu > 0) {
+        breakdown.push({ name: `雀頭（${TILE_NAMES[head]}）`, fu: headFu });
+        baseFu += headFu;
+    }
+
+    // 待ちの符
+    const waitFu = calculateWaitFu(decomposition, hand.agariTile);
+    if (waitFu > 0) {
+        breakdown.push({ name: getWaitName(decomposition, hand.agariTile), fu: waitFu });
+        baseFu += waitFu;
+    }
+
+    // ツモ符（門前ツモは2符、ただし平和ツモは0符）
+    if (isTsumo && !isPinfuTsumo(decomposition, hand, options)) {
+        breakdown.push({ name: 'ツモ', fu: 2 });
+        baseFu += 2;
+    }
+
+    // 門前ロンは10符加算
+    if (isMenzen && !isTsumo) {
+        breakdown.push({ name: '門前加符', fu: 10 });
+        baseFu += 10;
+    }
+
+    // 平和ロンの場合、30符固定
+    if (isPinfuRon(decomposition, hand, options)) {
+        return {
+            total: 30,
+            breakdown: [{ name: '平和ロン', fu: 30 }]
+        };
+    }
+
+    // 平和ツモの場合、20符固定
+    if (isPinfuTsumo(decomposition, hand, options)) {
+        return {
+            total: 20,
+            breakdown: [{ name: '平和ツモ', fu: 20 }]
+        };
+    }
+
+    // 符を切り上げ（10符単位）
+    const total = Math.ceil(baseFu / 10) * 10;
+
+    return { total, breakdown };
+}
+
+/**
+ * 面子の符を計算
+ */
+function calculateMentsuFu(mentsu, isTsumo, agariTile) {
+    const tile = mentsu.tiles[0];
+    const isYaochu = isTerminalOrHonor(tile);
+
+    switch (mentsu.type) {
+        case 'shuntsu':
+            return 0;
+
+        case 'koutsu':
+            // 暗刻か明刻か
+            const isAnkou = mentsu.isAnkou !== false;
+            // ロンで完成した刻子は明刻扱い
+            const isRonKoutsu = !isTsumo && mentsu.tiles.includes(agariTile);
+
+            if (isAnkou && !isRonKoutsu) {
+                return isYaochu ? 8 : 4; // 暗刻
+            } else {
+                return isYaochu ? 4 : 2; // 明刻
+            }
+
+        case 'kantsu':
+        case 'ankan':
+            if (mentsu.type === 'ankan') {
+                return isYaochu ? 32 : 16; // 暗槓
+            } else {
+                return isYaochu ? 16 : 8; // 明槓
+            }
+
+        default:
+            return 0;
+    }
+}
+
+/**
+ * 雀頭の符を計算
+ */
+function calculateHeadFu(head, options) {
+    if (!isHonorTile(head)) return 0;
+
+    const num = parseInt(head[0]);
+    let fu = 0;
+
+    // 三元牌
+    if (num >= 5) fu += 2;
+
+    // 場風
+    if (num === options.bakaze) fu += 2;
+
+    // 自風（連風牌は4符）
+    if (num === options.jikaze) fu += 2;
+
+    return fu;
+}
+
+/**
+ * 待ちの符を計算
+ */
+function calculateWaitFu(decomposition, agariTile) {
+    const { head, mentsu } = decomposition;
+
+    // 単騎待ち
+    if (head === agariTile) return 2;
+
+    for (const m of mentsu) {
+        if (!m.tiles.includes(agariTile)) continue;
+
+        if (m.type === 'shuntsu') {
+            const num = parseInt(agariTile[0]);
+            const firstNum = parseInt(m.tiles[0][0]);
+
+            // 嵌張待ち（真ん中待ち）
+            if (num === firstNum + 1) return 2;
+
+            // 辺張待ち（端待ち）
+            if ((firstNum === 1 && num === 3) || (firstNum === 7 && num === 7)) {
+                return 2;
+            }
+        }
+    }
+
+    return 0;
+}
+
+/**
+ * 面子の名前を取得
+ */
+function getMentsuName(mentsu) {
+    const tile = mentsu.tiles[0];
+    const tileName = TILE_NAMES[tile] || tile;
+
+    switch (mentsu.type) {
+        case 'shuntsu':
+            return `順子（${tileName}から）`;
+        case 'koutsu':
+            return mentsu.isAnkou !== false ? `暗刻（${tileName}）` : `明刻（${tileName}）`;
+        case 'kantsu':
+            return `明槓（${tileName}）`;
+        case 'ankan':
+            return `暗槓（${tileName}）`;
+        default:
+            return mentsu.type;
+    }
+}
+
+/**
+ * 待ちの名前を取得
+ */
+function getWaitName(decomposition, agariTile) {
+    const { head, mentsu } = decomposition;
+
+    if (head === agariTile) return '単騎待ち';
+
+    for (const m of mentsu) {
+        if (!m.tiles.includes(agariTile)) continue;
+
+        if (m.type === 'shuntsu') {
+            const num = parseInt(agariTile[0]);
+            const firstNum = parseInt(m.tiles[0][0]);
+
+            if (num === firstNum + 1) return '嵌張待ち';
+            if ((firstNum === 1 && num === 3) || (firstNum === 7 && num === 7)) {
+                return '辺張待ち';
+            }
+        }
+    }
+
+    return '両面待ち';
+}
+
+/**
+ * 平和ツモかどうか
+ */
+function isPinfuTsumo(decomposition, hand, options) {
+    if (!options.tsumo) return false;
+    if (hand.melds.length > 0) return false;
+    if (decomposition.type !== 'regular') return false;
+
+    return isPinfu(decomposition, hand.agariTile, options);
+}
+
+/**
+ * 平和ロンかどうか
+ */
+function isPinfuRon(decomposition, hand, options) {
+    if (options.tsumo) return false;
+    if (hand.melds.length > 0) return false;
+    if (decomposition.type !== 'regular') return false;
+
+    return isPinfu(decomposition, hand.agariTile, options);
+}
+
+// ========== score-calculator.js ==========
+/**
+ * score-calculator.js - 点数計算ロジック
+ * 参考: riichi ライブラリ
+ */
+
+// 点数表（子の場合）
+const CALC_SCORE_TABLE = {
+    // [符][翻] = 点数
+    20: { 2: 1300, 3: 2600, 4: 5200 },
+    25: { 2: 1600, 3: 3200, 4: 6400 }, // 七対子
+    30: { 1: 1000, 2: 2000, 3: 3900, 4: 7700 },
+    40: { 1: 1300, 2: 2600, 3: 5200, 4: 8000 },
+    50: { 1: 1600, 2: 3200, 3: 6400, 4: 8000 },
+    60: { 1: 2000, 2: 3900, 3: 7700, 4: 8000 },
+    70: { 1: 2300, 2: 4500, 3: 8000, 4: 8000 },
+    80: { 1: 2600, 2: 5200, 3: 8000, 4: 8000 },
+    90: { 1: 2900, 2: 5800, 3: 8000, 4: 8000 },
+    100: { 1: 3200, 2: 6400, 3: 8000, 4: 8000 },
+    110: { 1: 3600, 2: 7100, 3: 8000, 4: 8000 }
+};
+
+// ツモ時の点数（子の場合）
+const CALC_TSUMO_TABLE = {
+    // [符][翻] = [子の支払い, 親の支払い]
+    20: { 2: [400, 700], 3: [700, 1300], 4: [1300, 2600] },
+    25: { 2: [400, 800], 3: [800, 1600], 4: [1600, 3200] },
+    30: { 1: [300, 500], 2: [500, 1000], 3: [1000, 2000], 4: [2000, 3900] },
+    40: { 1: [400, 700], 2: [700, 1300], 3: [1300, 2600], 4: [2000, 4000] },
+    50: { 1: [400, 800], 2: [800, 1600], 3: [1600, 3200], 4: [2000, 4000] },
+    60: { 1: [500, 1000], 2: [1000, 2000], 3: [2000, 3900], 4: [2000, 4000] },
+    70: { 1: [600, 1200], 2: [1200, 2300], 3: [2000, 4000], 4: [2000, 4000] },
+    80: { 1: [700, 1300], 2: [1300, 2600], 3: [2000, 4000], 4: [2000, 4000] },
+    90: { 1: [800, 1500], 2: [1500, 2900], 3: [2000, 4000], 4: [2000, 4000] },
+    100: { 1: [800, 1600], 2: [1600, 3200], 3: [2000, 4000], 4: [2000, 4000] },
+    110: { 1: [900, 1800], 2: [1800, 3600], 3: [2000, 4000], 4: [2000, 4000] }
+};
+
+/**
+ * 点数を計算する
+ * @param {Object} hand - 手牌情報
+ * @param {Object} options - ゲームオプション
+ * @returns {Object} 計算結果
+ */
+function calculateScore(hand, options) {
+    // 役判定
+    const yakuResult = judgeYaku(hand, options);
+
+    if (yakuResult.error) {
+        return { error: true, message: yakuResult.message };
+    }
+
+    const { yakuList, totalHan, decomposition, yakuman } = yakuResult;
+
+    // 役がない場合
+    if (yakuList.length === 0 && (options.doraCount || 0) > 0) {
+        return { error: true, message: '役がありません（ドラのみでは和了できません）' };
+    }
+
+    if (yakuList.length === 0) {
+        return { error: true, message: '役がありません' };
+    }
+
+    // 役満の場合
+    if (yakuman) {
+        return calculateYakumanScore(yakuList, options);
+    }
+
+    // 符計算
+    const fuResult = calculateFu(decomposition, hand, options);
+    const fu = fuResult.total;
+
+    // 点数計算
+    const isOya = options.jikaze === 1;
+    const isTsumo = options.tsumo;
+    const honba = options.honba || 0;
+
+    const scoreResult = getScore(fu, totalHan, isOya, isTsumo);
+
+    // 積み棒加算
+    if (honba > 0) {
+        scoreResult.base += honba * 300;
+        if (isTsumo) {
+            scoreResult.ko = scoreResult.ko.map(s => s + honba * 100);
+            if (isOya) {
+                scoreResult.ko = scoreResult.ko.map(s => s + honba * 100);
+            } else {
+                scoreResult.oya += honba * 100;
+            }
+        }
+    }
+
+    return {
+        error: false,
+        han: totalHan,
+        fu,
+        fuBreakdown: fuResult.breakdown,
+        yakuList,
+        score: scoreResult,
+        isOya,
+        isTsumo,
+        name: getScoreName(totalHan, yakuman)
+    };
+}
+
+/**
+ * 点数を取得
+ */
+function getScore(fu, han, isOya, isTsumo) {
+    // 満貫以上
+    if (han >= 13) {
+        return calculateLimitScore('yakuman', isOya, isTsumo);
+    }
+    if (han >= 11) {
+        return calculateLimitScore('sanbaiman', isOya, isTsumo);
+    }
+    if (han >= 8) {
+        return calculateLimitScore('baiman', isOya, isTsumo);
+    }
+    if (han >= 6) {
+        return calculateLimitScore('haneman', isOya, isTsumo);
+    }
+    if (han >= 5) {
+        return calculateLimitScore('mangan', isOya, isTsumo);
+    }
+
+    // 4翻で切り上げ満貫
+    if (han === 4 && fu >= 40) {
+        return calculateLimitScore('mangan', isOya, isTsumo);
+    }
+    if (han === 3 && fu >= 70) {
+        return calculateLimitScore('mangan', isOya, isTsumo);
+    }
+
+    // 点数表から取得
+    const fuKey = Math.min(fu, 110);
+
+    if (isTsumo) {
+        const tsumoTable = CALC_TSUMO_TABLE[fuKey];
+        if (!tsumoTable || !tsumoTable[han]) {
+            // 計算式で算出
+            return calculateByFormula(fu, han, isOya, isTsumo);
+        }
+
+        const [ko, oya] = tsumoTable[han];
+
+        if (isOya) {
+            return {
+                base: ko * 3,
+                ko: [ko, ko, ko],
+                oya: 0,
+                text: `${ko}点オール`
+            };
+        } else {
+            return {
+                base: ko * 2 + oya,
+                ko: [ko, ko],
+                oya: oya,
+                text: `${ko}/${oya}点`
+            };
+        }
+    } else {
+        const ronTable = CALC_SCORE_TABLE[fuKey];
+        if (!ronTable || !ronTable[han]) {
+            return calculateByFormula(fu, han, isOya, false);
+        }
+
+        let base = ronTable[han];
+        if (isOya) {
+            base = Math.ceil(base * 1.5 / 100) * 100;
+        }
+
+        return {
+            base,
+            ko: [],
+            oya: 0,
+            text: `${base}点`
+        };
+    }
+}
+
+/**
+ * 計算式で算出
+ */
+function calculateByFormula(fu, han, isOya, isTsumo) {
+    // 基本点 = 符 × 2^(翻+2)
+    let basePoint = fu * Math.pow(2, han + 2);
+
+    // 満貫を超えないようにする
+    if (basePoint > 2000) {
+        basePoint = 2000;
+    }
+
+    if (isOya) {
+        if (isTsumo) {
+            const ko = ceilTo100(basePoint * 2);
+            return {
+                base: ko * 3,
+                ko: [ko, ko, ko],
+                oya: 0,
+                text: `${ko}点オール`
+            };
+        } else {
+            const base = ceilTo100(basePoint * 6);
+            return { base, ko: [], oya: 0, text: `${base}点` };
+        }
+    } else {
+        if (isTsumo) {
+            const ko = ceilTo100(basePoint);
+            const oya = ceilTo100(basePoint * 2);
+            return {
+                base: ko * 2 + oya,
+                ko: [ko, ko],
+                oya,
+                text: `${ko}/${oya}点`
+            };
+        } else {
+            const base = ceilTo100(basePoint * 4);
+            return { base, ko: [], oya: 0, text: `${base}点` };
+        }
+    }
+}
+
+/**
+ * 100点単位に切り上げ
+ */
+function ceilTo100(value) {
+    return Math.ceil(value / 100) * 100;
+}
+
+/**
+ * 満貫以上の点数計算
+ */
+function calculateLimitScore(limit, isOya, isTsumo) {
+    const limits = {
+        mangan: { oya: 12000, ko: 8000, oyaTsumo: 4000, koTsumo: [2000, 4000] },
+        haneman: { oya: 18000, ko: 12000, oyaTsumo: 6000, koTsumo: [3000, 6000] },
+        baiman: { oya: 24000, ko: 16000, oyaTsumo: 8000, koTsumo: [4000, 8000] },
+        sanbaiman: { oya: 36000, ko: 24000, oyaTsumo: 12000, koTsumo: [6000, 12000] },
+        yakuman: { oya: 48000, ko: 32000, oyaTsumo: 16000, koTsumo: [8000, 16000] }
+    };
+
+    const l = limits[limit];
+
+    if (isOya) {
+        if (isTsumo) {
+            return {
+                base: l.oyaTsumo * 3,
+                ko: [l.oyaTsumo, l.oyaTsumo, l.oyaTsumo],
+                oya: 0,
+                text: `${l.oyaTsumo}点オール`
+            };
+        } else {
+            return { base: l.oya, ko: [], oya: 0, text: `${l.oya}点` };
+        }
+    } else {
+        if (isTsumo) {
+            return {
+                base: l.koTsumo[0] * 2 + l.koTsumo[1],
+                ko: [l.koTsumo[0], l.koTsumo[0]],
+                oya: l.koTsumo[1],
+                text: `${l.koTsumo[0]}/${l.koTsumo[1]}点`
+            };
+        } else {
+            return { base: l.ko, ko: [], oya: 0, text: `${l.ko}点` };
+        }
+    }
+}
+
+/**
+ * 役満の点数計算
+ */
+function calculateYakumanScore(yakuList, options) {
+    const isOya = options.jikaze === 1;
+    const isTsumo = options.tsumo;
+
+    // 役満の倍数を計算
+    let yakumanCount = 0;
+    for (const yaku of yakuList) {
+        if (yaku.yakuman) {
+            yakumanCount += yaku.han >= 26 ? 2 : 1;
+        }
+    }
+
+    const baseScore = isOya ? 48000 : 32000;
+    const total = baseScore * yakumanCount;
+
+    let score;
+    if (isTsumo) {
+        if (isOya) {
+            const ko = (16000 * yakumanCount);
+            score = {
+                base: ko * 3,
+                ko: [ko, ko, ko],
+                oya: 0,
+                text: `${ko}点オール`
+            };
+        } else {
+            const ko = 8000 * yakumanCount;
+            const oya = 16000 * yakumanCount;
+            score = {
+                base: ko * 2 + oya,
+                ko: [ko, ko],
+                oya: oya,
+                text: `${ko}/${oya}点`
+            };
+        }
+    } else {
+        score = { base: total, ko: [], oya: 0, text: `${total}点` };
+    }
+
+    return {
+        error: false,
+        han: yakumanCount * 13,
+        fu: 0,
+        fuBreakdown: [],
+        yakuList,
+        score,
+        isOya,
+        isTsumo,
+        name: yakumanCount > 1 ? `${yakumanCount}倍役満` : '役満',
+        yakuman: true
+    };
+}
+
+/**
+ * 点数名を取得
+ */
+function getScoreName(han, yakuman) {
+    if (yakuman) return '役満';
+    if (han >= 13) return '数え役満';
+    if (han >= 11) return '三倍満';
+    if (han >= 8) return '倍満';
+    if (han >= 6) return '跳満';
+    if (han >= 5) return '満貫';
+    return '';
+}
+
+/**
+ * 三麻用の点数計算（ツモ損あり）
+ */
+function calculateSanmaScore(hand, options) {
+    const result = calculateScore(hand, options);
+
+    if (result.error) return result;
+
+    // ツモ損の計算（親がいない分を引く）
+    if (options.mode === '3player' && options.tsumoLoss && options.tsumo) {
+        if (!result.isOya) {
+            // 子のツモ時、親の分だけ減る
+            result.score.base -= result.score.oya;
+            result.score.text = `${result.score.ko[0]}オール (ツモ損)`;
+        }
+    }
+
+    // 北抜きドラを加算
+    if (options.nukiDora > 0) {
+        result.han += options.nukiDora;
+        result.yakuList.push({ name: `北抜きドラ${options.nukiDora}`, han: options.nukiDora });
+    }
+
+    return result;
+}
+
+// テストケースの定義
+const TEST_CASES = [
+    {
+        name: '平和ツモ（子）',
+        // 123m 456p 789s 234s + 雀頭22m（役牌でない）、アガリ9sで両面待ち
+        tiles: ['1m', '2m', '3m', '4p', '5p', '6p', '7s', '8s', '9s', '2s', '3s', '4s', '2m', '2m'],
+        agariTile: '9s',
+        melds: [],
+        options: { tsumo: true, jikaze: 2, bakaze: 1 },
+        expected: '400/700点'
+    },
+    {
+        name: '七対子ドラ2（子）',
+        tiles: ['1m', '1m', '3p', '3p', '5s', '5s', '7z', '7z', '2m', '2m', '4p', '4p', '6s', '6s'],
+        agariTile: '6s',
+        melds: [],
+        options: { tsumo: false, jikaze: 2, bakaze: 1, doraCount: 2 },
+        expected: '6400点'
+    },
+    {
+        name: 'タンヤオツモ（子）',
+        // 234m 567p 333s 567s + 雀頭88m（30符2翻 = 500/1000）
+        tiles: ['2m', '3m', '4m', '5p', '6p', '7p', '3s', '3s', '3s', '5s', '6s', '7s', '8m', '8m'],
+        agariTile: '8m',
+        melds: [],
+        options: { tsumo: true, jikaze: 2, bakaze: 1 },
+        expected: '500/1000点'
+    },
+    {
+        name: 'リーチ一発ツモ（子）',
+        // 20符3翻 = 700/1300
+        tiles: ['1m', '2m', '3m', '4p', '5p', '6p', '7s', '8s', '9s', '2s', '3s', '4s', '2m', '2m'],
+        agariTile: '9s',
+        melds: [],
+        options: { tsumo: true, jikaze: 2, bakaze: 1, riichi: true, ippatsu: true },
+        expected: '1300/2600点'
+    },
+    {
+        name: '国士無双（子）',
+        tiles: ['1m', '9m', '1p', '9p', '1s', '9s', '1z', '2z', '3z', '4z', '5z', '6z', '7z', '1m'],
+        agariTile: '7z',
+        melds: [],
+        options: { tsumo: true, jikaze: 2, bakaze: 1 },
+        expected: '8000/16000点'
+    }
+];
+
+
+// Export calculateScore to window
+window.calculateScore = calculateScore;
+
+// ========== app.js (Main Application) ==========
+/* ======================================
+   麻雀点数管理 - アプリケーションロジック
+   ====================================== */
+
+// ======================================
+// 点数計算テーブル
+// ======================================
+const SCORE_TABLE = {
+  // [符][翻] = [子ロン, 子ツモ親, 子ツモ子, 親ロン, 親ツモ]
+  20: {
+    2: [1300, 700, 400, 2000, 700],
+    3: [2600, 1300, 700, 3900, 1300],
+    4: [5200, 2600, 1300, 7700, 2600],
+  },
+  25: {
+    2: [1600, 0, 0, 2400, 0], // ツモなし（七対子のみ）
+    3: [3200, 1600, 800, 4800, 1600],
+    4: [6400, 3200, 1600, 9600, 3200],
+  },
+  30: {
+    1: [1000, 500, 300, 1500, 500],
+    2: [2000, 1000, 500, 2900, 1000],
+    3: [3900, 2000, 1000, 5800, 2000],
+    4: [7700, 3900, 2000, 11600, 3900],
+  },
+  40: {
+    1: [1300, 700, 400, 2000, 700],
+    2: [2600, 1300, 700, 3900, 1300],
+    3: [5200, 2600, 1300, 7700, 2600],
+    4: [8000, 4000, 2000, 12000, 4000], // 満貫
+  },
+  50: {
+    1: [1600, 800, 400, 2400, 800],
+    2: [3200, 1600, 800, 4800, 1600],
+    3: [6400, 3200, 1600, 9600, 3200],
+    4: [8000, 4000, 2000, 12000, 4000], // 満貫
+  },
+  60: {
+    1: [2000, 1000, 500, 2900, 1000],
+    2: [3900, 2000, 1000, 5800, 2000],
+    3: [7700, 3900, 2000, 11600, 3900],
+    4: [8000, 4000, 2000, 12000, 4000], // 満貫
+  },
+  70: {
+    1: [2300, 1200, 600, 3400, 1200],
+    2: [4500, 2300, 1200, 6800, 2300],
+    3: [8000, 4000, 2000, 12000, 4000], // 満貫
+    4: [8000, 4000, 2000, 12000, 4000],
+  },
+  80: {
+    1: [2600, 1300, 700, 3900, 1300],
+    2: [5200, 2600, 1300, 7700, 2600],
+    3: [8000, 4000, 2000, 12000, 4000], // 満貫
+    4: [8000, 4000, 2000, 12000, 4000],
+  },
+  90: {
+    1: [2900, 1500, 800, 4400, 1500],
+    2: [5800, 2900, 1500, 8700, 2900],
+    3: [8000, 4000, 2000, 12000, 4000], // 満貫
+    4: [8000, 4000, 2000, 12000, 4000],
+  },
+  100: {
+    1: [3200, 1600, 800, 4800, 1600],
+    2: [6400, 3200, 1600, 9600, 3200],
+    3: [8000, 4000, 2000, 12000, 4000], // 満貫
+    4: [8000, 4000, 2000, 12000, 4000],
+  },
+  110: {
+    1: [3600, 1800, 900, 5300, 1800],
+    2: [7100, 3600, 1800, 10600, 3600],
+    3: [8000, 4000, 2000, 12000, 4000], // 満貫
+    4: [8000, 4000, 2000, 12000, 4000],
+  },
+};
+
+// 満貫以上の点数
+const LIMIT_HANDS = {
+  5: { name: '満貫', ron: [8000, 12000], tsumo: [[2000, 4000], [4000, 4000]] },
+  6: { name: '跳満', ron: [12000, 18000], tsumo: [[3000, 6000], [6000, 6000]] },
+  7: { name: '跳満', ron: [12000, 18000], tsumo: [[3000, 6000], [6000, 6000]] },
+  8: { name: '倍満', ron: [16000, 24000], tsumo: [[4000, 8000], [8000, 8000]] },
+  9: { name: '倍満', ron: [16000, 24000], tsumo: [[4000, 8000], [8000, 8000]] },
+  10: { name: '倍満', ron: [16000, 24000], tsumo: [[4000, 8000], [8000, 8000]] },
+  11: { name: '三倍満', ron: [24000, 36000], tsumo: [[6000, 12000], [12000, 12000]] },
+  12: { name: '三倍満', ron: [24000, 36000], tsumo: [[6000, 12000], [12000, 12000]] },
+  13: { name: '役満', ron: [32000, 48000], tsumo: [[8000, 16000], [16000, 16000]] },
+  26: { name: 'ダブル役満', ron: [64000, 96000], tsumo: [[16000, 32000], [32000, 32000]] },
+  39: { name: 'トリプル役満', ron: [96000, 144000], tsumo: [[24000, 48000], [48000, 48000]] },
+};
+
+// ======================================
+// ゲーム状態管理
+// ======================================
+class GameState {
+  constructor() {
+    this.reset();
+  }
+
+  reset() {
+    this.gameMode = '4player';
+    this.roundType = 'hanchan'; // 'hanchan' or 'tonpuu'
+    this.players = [];
+    this.currentRound = { wind: 'east', number: 1 };
+    this.honba = 0;
+    this.kyoutaku = 0;
+    this.dealerIndex = 0;
+    this.startingDealerIndex = 0; // 起家インデックス
+    this.history = [];
+  }
+
+  initialize(mode, roundType, playerNames) {
+    this.reset();
+    this.gameMode = mode;
+    this.roundType = roundType;
+    const initialScore = mode === '4player' ? 25000 : 35000;
+    const playerCount = mode === '4player' ? 4 : 3;
+
+    for (let i = 0; i < playerCount; i++) {
+      this.players.push({
+        name: playerNames[i] || `Player ${i + 1}`,
+        score: initialScore,
+        isRiichi: false,
+      });
+    }
+    this.dealerIndex = 0;
+    this.startingDealerIndex = 0; // 初期値、UIControllerで起家選択後に設定
+  }
+
+  saveToHistory() {
+    this.history.push(JSON.stringify({
+      players: this.players,
+      currentRound: this.currentRound,
+      honba: this.honba,
+      kyoutaku: this.kyoutaku,
+      dealerIndex: this.dealerIndex,
+      startingDealerIndex: this.startingDealerIndex,
+    }));
+    // 履歴は20件まで保持
+    if (this.history.length > 20) {
+      this.history.shift();
+    }
+  }
+
+  undo() {
+    if (this.history.length === 0) return false;
+    const state = JSON.parse(this.history.pop());
+    this.players = state.players;
+    this.currentRound = state.currentRound;
+    this.honba = state.honba;
+    this.kyoutaku = state.kyoutaku;
+    this.dealerIndex = state.dealerIndex;
+    this.startingDealerIndex = state.startingDealerIndex || 0;
+    return true;
+  }
+
+  isDealer(playerIndex) {
+    return playerIndex === this.dealerIndex;
+  }
+
+  getRoundName() {
+    const windNames = { east: '東', south: '南', west: '西', north: '北' };
+    return `${windNames[this.currentRound.wind]}${this.currentRound.number}局`;
+  }
+
+  advanceRound(dealerWon) {
+    if (dealerWon) {
+      // 親連荘
+      this.honba++;
+    } else {
+      // 親流れ - 積み棒加算
+      this.honba++;
+      this.dealerIndex = (this.dealerIndex + 1) % this.players.length;
+
+      // 起家に戻ったら全員が親を終えた = 次の場
+      if (this.dealerIndex === this.startingDealerIndex) {
+        this.currentRound.number = 1;
+        if (this.currentRound.wind === 'east') {
+          if (this.roundType === 'tonpuu') {
+            // 東風戦：東場終了 → ゲーム終了
+            return true;
+          }
+          this.currentRound.wind = 'south';
+          this.honba = 0;
+        } else if (this.currentRound.wind === 'south') {
+          // 南場終了 → ゲーム終了
+          return true;
+        }
+      } else {
+        // 局数を進める（起家からの相対位置で計算）
+        const relativePosition = (this.dealerIndex - this.startingDealerIndex + this.players.length) % this.players.length;
+        this.currentRound.number = relativePosition + 1;
+      }
+    }
+    return false;
+  }
+
+  checkGameEnd() {
+    // オーラス条件チェック
+    const lastWind = this.roundType === 'tonpuu' ? 'east' : 'south';
+    const isOrasu = (this.currentRound.wind === lastWind &&
+      this.currentRound.number === (this.gameMode === '4player' ? 4 : 3));
+
+    if (!isOrasu) return false;
+
+    // 親がトップかつ基準点超え
+    const returnScore = this.gameMode === '4player' ? 30000 : 40000;
+    const dealerScore = this.players[this.dealerIndex].score;
+    const maxScore = Math.max(...this.players.map(p => p.score));
+
+    return dealerScore === maxScore && dealerScore >= returnScore;
+  }
+
+  getResults() {
+    const returnScore = this.gameMode === '4player' ? 30000 : 40000;
+    const sorted = this.players
+      .map((p, i) => ({ ...p, index: i }))
+      .sort((a, b) => b.score - a.score);
+
+    return sorted.map((player, rank) => ({
+      rank: rank + 1,
+      name: player.name,
+      score: player.score,
+      pts: Math.round((player.score - returnScore) / 1000),
+    }));
+  }
+
+  saveToLocalStorage() {
+    localStorage.setItem('mahjongGameState', JSON.stringify({
+      gameMode: this.gameMode,
+      roundType: this.roundType,
+      players: this.players,
+      currentRound: this.currentRound,
+      honba: this.honba,
+      kyoutaku: this.kyoutaku,
+      dealerIndex: this.dealerIndex,
+      history: this.history,
+    }));
+  }
+
+  loadFromLocalStorage() {
+    const data = localStorage.getItem('mahjongGameState');
+    if (!data) return false;
+
+    try {
+      const state = JSON.parse(data);
+      this.gameMode = state.gameMode;
+      this.roundType = state.roundType || 'hanchan';
+      this.players = state.players;
+      this.currentRound = state.currentRound;
+      this.honba = state.honba;
+      this.kyoutaku = state.kyoutaku;
+      this.dealerIndex = state.dealerIndex;
+      this.history = state.history || [];
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  clearLocalStorage() {
+    localStorage.removeItem('mahjongGameState');
+  }
+}
+
+// ======================================
+// 点数計算
+// ======================================
+class ScoreCalculator {
+  static calculate(fu, han, isDealer, isTsumo, is3Player = false) {
+    // 満貫以上
+    if (han >= 5) {
+      // ダブル役満(26)とトリプル役満(39)はそのまま参照、それ以外は13以下に制限
+      let limitHan;
+      if (han >= 39) {
+        limitHan = 39;
+      } else if (han >= 26) {
+        limitHan = 26;
+      } else if (han >= 13) {
+        limitHan = 13;
+      } else {
+        limitHan = Math.min(han, 12);
+      }
+      const limit = LIMIT_HANDS[limitHan];
+      if (isTsumo) {
+        const [koScore, oyaScore] = isDealer ? limit.tsumo[1] : limit.tsumo[0];
+        if (is3Player && !isDealer) {
+          // 三麻ツモ損
+          return {
+            total: koScore + oyaScore,
+            detail: `${limit.name} ツモ ${koScore}/${oyaScore}`,
+            payments: { ko: koScore, oya: oyaScore },
+          };
+        }
+        const total = isDealer ? koScore * 3 : koScore * 2 + oyaScore;
+        return {
+          total,
+          detail: `${limit.name} ツモ ${isDealer ? `${koScore}オール` : `${koScore}/${oyaScore}`}`,
+          payments: isDealer ? { all: koScore } : { ko: koScore, oya: oyaScore },
+        };
+      } else {
+        const score = limit.ron[isDealer ? 1 : 0];
+        return {
+          total: score,
+          detail: `${limit.name} ロン`,
+          payments: { ron: score },
+        };
+      }
+    }
+
+    // 通常点数テーブル参照
+    const fuTable = SCORE_TABLE[fu];
+    if (!fuTable || !fuTable[han]) {
+      // テーブルにない場合は符を30符に切り上げて再計算
+      // 20符・25符で該当翻数がない場合（例: 20符1翻、25符1翻）
+      // これらは実際には存在しない組み合わせだが、入力された場合は30符として計算
+      if (fu < 30) {
+        return ScoreCalculator.calculate(30, han, isDealer, isTsumo, is3Player);
+      }
+      // それ以外でテーブルにない場合（4翻以上で満貫到達など）は満貫として計算
+      return ScoreCalculator.calculate(fu, 5, isDealer, isTsumo, is3Player);
+    }
+
+    const [koRon, koTsumoOya, koTsumoKo, oyaRon, oyaTsumo] = fuTable[han];
+
+    if (isTsumo) {
+      if (isDealer) {
+        return {
+          total: oyaTsumo * 3,
+          detail: `${fu}符${han}翻 ツモ ${oyaTsumo}オール`,
+          payments: { all: oyaTsumo },
+        };
+      } else {
+        if (is3Player) {
+          // 三麻ツモ損
+          return {
+            total: koTsumoKo + koTsumoOya,
+            detail: `${fu}符${han}翻 ツモ ${koTsumoKo}/${koTsumoOya}`,
+            payments: { ko: koTsumoKo, oya: koTsumoOya },
+          };
+        }
+        return {
+          total: koTsumoKo * 2 + koTsumoOya,
+          detail: `${fu}符${han}翻 ツモ ${koTsumoKo}/${koTsumoOya}`,
+          payments: { ko: koTsumoKo, oya: koTsumoOya },
+        };
+      }
+    } else {
+      const score = isDealer ? oyaRon : koRon;
+      return {
+        total: score,
+        detail: `${fu}符${han}翻 ロン`,
+        payments: { ron: score },
+      };
+    }
+  }
+}
+
+// ======================================
+// UI コントローラ
+// ======================================
+class UIController {
+  constructor(gameState) {
+    this.gameState = gameState;
+    this.currentAgari = null;
+    this.setupEventListeners();
+    this.checkSavedGame();
+  }
+
+  checkSavedGame() {
+    if (this.gameState.loadFromLocalStorage()) {
+      document.getElementById('btn-resume').style.display = 'block';
+    }
+  }
+
+  setupEventListeners() {
+    // Setup Screen
+    document.getElementById('btn-4player').addEventListener('click', () => this.selectMode('4player'));
+    document.getElementById('btn-3player').addEventListener('click', () => this.selectMode('3player'));
+    document.getElementById('btn-hanchan').addEventListener('click', () => this.selectRoundType('hanchan'));
+    document.getElementById('btn-tonpuu').addEventListener('click', () => this.selectRoundType('tonpuu'));
+    document.getElementById('btn-start').addEventListener('click', () => this.startGame());
+    document.getElementById('btn-resume').addEventListener('click', () => this.resumeGame());
+
+    // Game Screen
+    document.getElementById('btn-ryukyoku').addEventListener('click', () => this.showRyukyokuModal());
+    document.getElementById('btn-double-ron-hud').addEventListener('click', () => this.showDoubleRonModal());
+    document.getElementById('btn-undo').addEventListener('click', () => this.undo());
+    document.getElementById('btn-menu').addEventListener('click', () => this.showMenuModal());
+
+    // Player Actions
+    document.querySelectorAll('.btn-riichi').forEach(btn => {
+      btn.addEventListener('click', (e) => this.handleRiichi(parseInt(e.target.dataset.player)));
+    });
+    document.querySelectorAll('.btn-tsumo').forEach(btn => {
+      btn.addEventListener('click', (e) => this.showAgariModal(parseInt(e.target.dataset.player), 'tsumo'));
+    });
+    document.querySelectorAll('.btn-ron').forEach(btn => {
+      btn.addEventListener('click', (e) => this.showAgariModal(parseInt(e.target.dataset.player), 'ron'));
+    });
+
+    // Agari Modal
+    document.querySelectorAll('.fu-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => this.selectFu(parseInt(e.target.dataset.fu)));
+    });
+    document.querySelectorAll('.han-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => this.selectHan(parseInt(e.target.dataset.han)));
+    });
+    document.getElementById('btn-agari-cancel').addEventListener('click', () => this.hideModal('agari-modal'));
+    document.getElementById('btn-agari-confirm').addEventListener('click', () => this.confirmAgari());
+
+    // Ryukyoku Modal
+    document.getElementById('btn-normal-ryukyoku').addEventListener('click', () => this.selectRyukyokuType('normal'));
+    document.getElementById('btn-途中流局').addEventListener('click', () => this.selectRyukyokuType('abort'));
+    document.getElementById('btn-ryukyoku-cancel').addEventListener('click', () => this.hideModal('ryukyoku-modal'));
+    document.getElementById('btn-ryukyoku-confirm').addEventListener('click', () => this.confirmRyukyoku());
+
+    // Menu Modal
+    document.getElementById('btn-double-ron').addEventListener('click', () => this.showDoubleRonModal());
+    document.getElementById('btn-yaku-list').addEventListener('click', () => this.showModal('yaku-list-modal'));
+    document.getElementById('btn-chombo').addEventListener('click', () => this.showChomboModal());
+    document.getElementById('btn-end-game').addEventListener('click', () => this.showConfirmEndModal());
+    document.getElementById('btn-menu-close').addEventListener('click', () => this.hideModal('menu-modal'));
+
+    // Double Ron Modal
+    document.getElementById('btn-double-ron-cancel').addEventListener('click', () => this.hideModal('double-ron-modal'));
+    document.getElementById('btn-double-ron-confirm').addEventListener('click', () => this.confirmDoubleRon());
+    document.getElementById('btn-double-ron-next-winner').addEventListener('click', () => this.nextDoubleRonWinner());
+    document.querySelectorAll('.double-ron-fu-buttons .fu-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => this.selectDoubleRonFu(parseInt(e.target.dataset.fu)));
+    });
+    document.querySelectorAll('.double-ron-han-buttons .han-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => this.selectDoubleRonHan(parseInt(e.target.dataset.han)));
+    });
+
+    // Yaku List Modal
+    document.getElementById('btn-yaku-list-close').addEventListener('click', () => this.hideModal('yaku-list-modal'));
+
+    // Yaku List from Agari Modal
+    document.getElementById('btn-yaku-list-from-agari').addEventListener('click', () => {
+      this.showModal('yaku-list-modal');
+    });
+
+    // Yaku List from Double Ron Modal
+    document.getElementById('btn-double-ron-yaku-list').addEventListener('click', () => {
+      this.showModal('yaku-list-modal');
+    });
+
+    // Calculator Tool Modal
+    document.getElementById('btn-calculator-close').addEventListener('click', () => this.hideModal('calculator-modal'));
+    document.getElementById('btn-calculator-from-agari').addEventListener('click', () => {
+      this.openCalculatorWithState();
+    });
+    document.getElementById('btn-calculator-from-double-ron').addEventListener('click', () => {
+      this.openCalculatorWithState();
+    });
+
+    // 計算ツールの結果反映は calculator.js で直接行う（iframeは使用しない）
+
+    // Confirm End Modal
+    document.getElementById('btn-confirm-end-cancel').addEventListener('click', () => this.hideModal('confirm-end-modal'));
+    document.getElementById('btn-confirm-end-ok').addEventListener('click', () => this.endGame());
+
+    // Chombo Modal
+    document.getElementById('btn-chombo-cancel').addEventListener('click', () => this.hideModal('chombo-modal'));
+
+    // Result Screen
+    document.getElementById('btn-back-to-setup').addEventListener('click', () => this.backToSetup());
+
+    // Player Name Inputs - focus時にデフォルト値ならクリア、blur時に空なら元に戻す
+    document.querySelectorAll('.player-names input').forEach(input => {
+      input.addEventListener('focus', (e) => {
+        // デフォルト値と同じならクリアする（新規入力しやすく）
+        if (e.target.value === e.target.dataset.default) {
+          e.target.value = '';
+        }
+      });
+      input.addEventListener('blur', (e) => {
+        // 空またはスペースのみなら元に戻す
+        if (e.target.value.trim() === '') {
+          e.target.value = e.target.dataset.default;
+        }
+      });
+    });
+  }
+
+  selectMode(mode) {
+    document.getElementById('btn-4player').classList.toggle('active', mode === '4player');
+    document.getElementById('btn-3player').classList.toggle('active', mode === '3player');
+    document.getElementById('player4-name').style.display = mode === '4player' ? 'block' : 'none';
+  }
+
+  selectRoundType(type) {
+    document.getElementById('btn-hanchan').classList.toggle('active', type === 'hanchan');
+    document.getElementById('btn-tonpuu').classList.toggle('active', type === 'tonpuu');
+  }
+
+  startGame() {
+    const mode = document.getElementById('btn-4player').classList.contains('active') ? '4player' : '3player';
+    const roundType = document.getElementById('btn-hanchan').classList.contains('active') ? 'hanchan' : 'tonpuu';
+    const names = [
+      document.getElementById('player1-name').value,
+      document.getElementById('player2-name').value,
+      document.getElementById('player3-name').value,
+      document.getElementById('player4-name').value,
+    ];
+    this.gameState.initialize(mode, roundType, names);
+
+    // Show dealer selection modal
+    this.showDealerSelectModal();
+  }
+
+  resumeGame() {
+    // Resume directly without dealer selection
+    this.showGameScreenDirectly();
+  }
+
+  showDealerSelectModal() {
+    const container = document.getElementById('dealer-select-buttons');
+    container.innerHTML = '';
+
+    this.gameState.players.forEach((player, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'target-btn';
+      btn.textContent = player.name;
+      btn.addEventListener('click', () => this.selectDealer(i));
+      container.appendChild(btn);
+    });
+
+    document.getElementById('setup-screen').style.display = 'none';
+    document.getElementById('dealer-select-modal').style.display = 'flex';
+  }
+
+  selectDealer(playerIndex) {
+    this.gameState.dealerIndex = playerIndex;
+    this.gameState.startingDealerIndex = playerIndex; // 起家として記録
+    this.hideModal('dealer-select-modal');
+    this.showGameScreenDirectly();
+  }
+
+  showGameScreenDirectly() {
+    document.getElementById('dealer-select-modal').style.display = 'none';
+    document.getElementById('game-screen').style.display = 'block';
+    this.updateUI();
+  }
+
+  showGameScreen() {
+    // Legacy method - now redirects to showDealerSelectModal for new games
+    this.showGameScreenDirectly();
+  }
+
+  updateUI() {
+    const gs = this.gameState;
+
+    // Central HUD
+    const windNames = { east: '東', south: '南', west: '西', north: '北' };
+    document.getElementById('round-wind').textContent = windNames[gs.currentRound.wind];
+    document.getElementById('round-number').textContent = gs.currentRound.number;
+    document.getElementById('honba-count').textContent = gs.honba;
+    document.getElementById('kyoutaku-count').textContent = gs.kyoutaku;
+
+    // Undo button
+    document.getElementById('btn-undo').disabled = gs.history.length === 0;
+
+    // Player Areas
+    const areaIds = ['player-area-1', 'player-area-2', 'player-area-3', 'player-area-4'];
+
+    for (let i = 0; i < 4; i++) {
+      const area = document.getElementById(areaIds[i]);
+
+      if (gs.gameMode === '3player' && i === 3) {
+        area.classList.add('hidden');
+        continue;
+      }
+      area.classList.remove('hidden');
+
+      const player = gs.players[i];
+      if (!player) continue;
+
+      // プレイヤーの風を計算（親からの相対位置）
+      // 親=東、親の右=南、対面=西、親の左=北
+      const windPosition = (i - gs.dealerIndex + gs.players.length) % gs.players.length;
+      const playerWinds = ['東', '南', '西', '北'];
+      const windIndicator = area.querySelector('.wind-indicator');
+      if (windIndicator) {
+        windIndicator.textContent = playerWinds[windPosition];
+      }
+
+      area.querySelector('.player-name').textContent = player.name;
+      area.querySelector('.player-score').textContent = player.score.toLocaleString();
+
+      // Dealer indicator
+      const dealerInd = area.querySelector('.dealer-indicator');
+      dealerInd.style.display = gs.isDealer(i) ? 'inline' : 'none';
+
+      // Riichi indicator
+      const riichiInd = area.querySelector('.riichi-indicator');
+      riichiInd.style.display = player.isRiichi ? 'inline' : 'none';
+      area.classList.toggle('riichi', player.isRiichi);
+      area.classList.toggle('dealer', gs.isDealer(i));
+
+      // Riichi button state
+      const riichiBtn = area.querySelector('.btn-riichi');
+      riichiBtn.classList.toggle('active', player.isRiichi);
+
+      // Rank
+      const scores = gs.players.map(p => p.score);
+      const sortedScores = [...scores].sort((a, b) => b - a);
+      const rank = sortedScores.indexOf(player.score) + 1;
+      const topDiff = player.score - sortedScores[0];
+      area.querySelector('.player-rank').textContent = rank === 1 ? '' : `${rank}位 (${topDiff >= 0 ? '+' : ''}${topDiff})`;
+    }
+
+    // Save state
+    gs.saveToLocalStorage();
+  }
+
+  handleRiichi(playerIndex) {
+    const player = this.gameState.players[playerIndex];
+    if (player.isRiichi) return; // Already riichi
+
+    if (player.score < 1000) {
+      alert('点数が足りません');
+      return;
+    }
+
+    this.gameState.saveToHistory();
+    player.score -= 1000;
+    player.isRiichi = true;
+    this.gameState.kyoutaku++;
+
+    // 立直音声再生
+    this.playRiichiSound();
+
+    this.updateUI();
+  }
+
+  playRiichiSound() {
+    const audio = document.getElementById('riichi-sound');
+    if (audio) {
+      audio.currentTime = 0;
+      audio.play().catch(e => {
+        // ユーザーインタラクションが必要な場合は無視
+        console.log('Audio play failed:', e);
+      });
+    }
+  }
+
+  showAgariModal(playerIndex, type) {
+    this.currentAgari = {
+      winner: playerIndex,
+      type: type,
+      loser: null,
+      fu: 30,
+      han: 1,
+    };
+
+    const title = type === 'tsumo' ? 'ツモ和了' : 'ロン和了';
+    document.getElementById('agari-title').textContent = `${this.gameState.players[playerIndex].name} - ${title}`;
+
+    // Ron target selection
+    const ronTargetDiv = document.getElementById('ron-target-select');
+    if (type === 'ron') {
+      ronTargetDiv.style.display = 'block';
+      const container = document.getElementById('ron-target-buttons');
+      container.innerHTML = '';
+      this.gameState.players.forEach((player, i) => {
+        if (i !== playerIndex) {
+          const btn = document.createElement('button');
+          btn.className = 'target-btn';
+          btn.textContent = player.name;
+          btn.addEventListener('click', () => this.selectRonTarget(i));
+          container.appendChild(btn);
+        }
+      });
+    } else {
+      ronTargetDiv.style.display = 'none';
+    }
+
+    // Reset selections
+    document.querySelectorAll('.fu-btn').forEach(btn => {
+      btn.classList.toggle('active', parseInt(btn.dataset.fu) === 30);
+    });
+    document.querySelectorAll('.han-btn').forEach(btn => {
+      btn.classList.toggle('active', parseInt(btn.dataset.han) === 1);
+    });
+
+    this.updateScorePreview();
+    document.getElementById('agari-modal').style.display = 'flex';
+  }
+
+  selectRonTarget(index) {
+    this.currentAgari.loser = index;
+    document.querySelectorAll('#ron-target-buttons .target-btn').forEach((btn, i) => {
+      const targetIndex = this.gameState.players.findIndex((p, j) =>
+        j !== this.currentAgari.winner &&
+        btn.textContent === p.name
+      );
+      btn.classList.toggle('active', targetIndex === index);
+    });
+  }
+
+  selectFu(fu) {
+    this.currentAgari.fu = fu;
+    document.querySelectorAll('.fu-btn').forEach(btn => {
+      btn.classList.toggle('active', parseInt(btn.dataset.fu) === fu);
+    });
+    this.updateScorePreview();
+  }
+
+  selectHan(han) {
+    this.currentAgari.han = han;
+    document.querySelectorAll('.han-btn').forEach(btn => {
+      btn.classList.toggle('active', parseInt(btn.dataset.han) === han);
+    });
+    this.updateScorePreview();
+  }
+
+  updateScorePreview() {
+    const { winner, type, fu, han } = this.currentAgari;
+    const isDealer = this.gameState.isDealer(winner);
+    const isTsumo = type === 'tsumo';
+    const is3Player = this.gameState.gameMode === '3player';
+
+    const result = ScoreCalculator.calculate(fu, han, isDealer, isTsumo, is3Player);
+
+    // Add honba
+    const honbaBonus = this.gameState.honba * 300;
+    const totalWithHonba = result.total + honbaBonus;
+
+    document.getElementById('preview-score').textContent = `${totalWithHonba.toLocaleString()}点`;
+    document.getElementById('preview-detail').textContent =
+      honbaBonus > 0 ? `${result.detail} (+${honbaBonus}本場)` : result.detail;
+  }
+
+  confirmAgari() {
+    const { winner, type, loser, fu, han } = this.currentAgari;
+
+    if (type === 'ron' && loser === null) {
+      alert('放銃者を選択してください');
+      return;
+    }
+
+    const isDealer = this.gameState.isDealer(winner);
+    const isTsumo = type === 'tsumo';
+    const is3Player = this.gameState.gameMode === '3player';
+
+    const result = ScoreCalculator.calculate(fu, han, isDealer, isTsumo, is3Player);
+    const honbaBonus = this.gameState.honba * 300;
+
+    this.gameState.saveToHistory();
+
+    // Reset riichi
+    this.gameState.players.forEach(p => p.isRiichi = false);
+
+    // Add kyoutaku to winner
+    const kyoutakuBonus = this.gameState.kyoutaku * 1000;
+    this.gameState.players[winner].score += kyoutakuBonus;
+    this.gameState.kyoutaku = 0;
+
+    if (isTsumo) {
+      // Tsumo payments
+      if (isDealer) {
+        const payment = result.payments.all + Math.ceil(honbaBonus / 3);
+        this.gameState.players.forEach((p, i) => {
+          if (i !== winner) {
+            p.score -= payment;
+            this.gameState.players[winner].score += payment;
+          }
+        });
+      } else {
+        if (is3Player) {
+          // 三麻ツモ損
+          this.gameState.players.forEach((p, i) => {
+            if (i !== winner) {
+              const isOtherDealer = this.gameState.isDealer(i);
+              const payment = (isOtherDealer ? result.payments.oya : result.payments.ko)
+                + Math.ceil(honbaBonus / 2);
+              p.score -= payment;
+              this.gameState.players[winner].score += payment;
+            }
+          });
+        } else {
+          this.gameState.players.forEach((p, i) => {
+            if (i !== winner) {
+              const isOtherDealer = this.gameState.isDealer(i);
+              const payment = (isOtherDealer ? result.payments.oya : result.payments.ko)
+                + Math.ceil(honbaBonus / 3);
+              p.score -= payment;
+              this.gameState.players[winner].score += payment;
+            }
+          });
+        }
+      }
+    } else {
+      // Ron payment
+      const payment = result.payments.ron + honbaBonus;
+      this.gameState.players[loser].score -= payment;
+      this.gameState.players[winner].score += payment;
+    }
+
+    // Check bust (トビ)
+    if (this.checkBust()) {
+      this.hideModal('agari-modal');
+      this.showResults();
+      return;
+    }
+
+    // Check game end
+    const dealerWon = isDealer || winner === this.gameState.dealerIndex;
+    const gameEnded = this.gameState.advanceRound(dealerWon);
+
+    this.hideModal('agari-modal');
+
+    if (gameEnded || this.gameState.checkGameEnd()) {
+      this.showResults();
+    } else {
+      this.updateUI();
+    }
+  }
+
+  checkBust() {
+    return this.gameState.players.some(p => p.score < 0);
+  }
+
+  showRyukyokuModal() {
+    this.currentRyukyoku = {
+      type: 'normal',
+      tenpai: [],
+    };
+
+    // Setup tenpai buttons
+    const container = document.getElementById('tenpai-buttons');
+    container.innerHTML = '';
+    this.gameState.players.forEach((player, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'tenpai-btn';
+      btn.textContent = player.name;
+      btn.dataset.player = i;
+      btn.addEventListener('click', () => this.toggleTenpai(i, btn));
+      container.appendChild(btn);
+    });
+
+    document.getElementById('tenpai-select').style.display = 'block';
+    document.getElementById('btn-normal-ryukyoku').classList.add('active');
+    document.getElementById('btn-途中流局').classList.remove('active');
+    document.getElementById('ryukyoku-modal').style.display = 'flex';
+  }
+
+  selectRyukyokuType(type) {
+    this.currentRyukyoku.type = type;
+    document.getElementById('btn-normal-ryukyoku').classList.toggle('active', type === 'normal');
+    document.getElementById('btn-途中流局').classList.toggle('active', type === 'abort');
+    document.getElementById('tenpai-select').style.display = type === 'normal' ? 'block' : 'none';
+  }
+
+  toggleTenpai(playerIndex, btn) {
+    const idx = this.currentRyukyoku.tenpai.indexOf(playerIndex);
+    if (idx === -1) {
+      this.currentRyukyoku.tenpai.push(playerIndex);
+      btn.classList.add('tenpai');
+      btn.classList.remove('noten');
+    } else {
+      this.currentRyukyoku.tenpai.splice(idx, 1);
+      btn.classList.remove('tenpai');
+      btn.classList.add('noten');
+    }
+  }
+
+  confirmRyukyoku() {
+    this.gameState.saveToHistory();
+
+    if (this.currentRyukyoku.type === 'normal') {
+      const tenpaiCount = this.currentRyukyoku.tenpai.length;
+      const notenCount = this.gameState.players.length - tenpaiCount;
+
+      // テンパイ料計算
+      if (tenpaiCount > 0 && notenCount > 0) {
+        const tenpaiReceive = 3000 / tenpaiCount;
+        const notenPay = 3000 / notenCount;
+
+        this.gameState.players.forEach((p, i) => {
+          if (this.currentRyukyoku.tenpai.includes(i)) {
+            p.score += tenpaiReceive;
+          } else {
+            p.score -= notenPay;
+          }
+        });
+      }
+
+      // 親がノーテンなら親流れ
+      const dealerTenpai = this.currentRyukyoku.tenpai.includes(this.gameState.dealerIndex);
+      this.gameState.advanceRound(dealerTenpai);
+      if (!dealerTenpai) {
+        this.gameState.honba++;
+      }
+    }
+    // 途中流局は同局やり直し（積み棒なし）
+
+    // リーチは維持（供託は残る）
+    this.gameState.players.forEach(p => p.isRiichi = false);
+
+    // Check bust (トビ)
+    if (this.checkBust()) {
+      this.hideModal('ryukyoku-modal');
+      this.showResults();
+      return;
+    }
+
+    this.hideModal('ryukyoku-modal');
+    this.updateUI();
+  }
+
+  showMenuModal() {
+    document.getElementById('menu-modal').style.display = 'flex';
+  }
+
+  showChomboModal() {
+    this.hideModal('menu-modal');
+
+    const container = document.getElementById('chombo-buttons');
+    container.innerHTML = '';
+    this.gameState.players.forEach((player, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'target-btn';
+      btn.textContent = player.name;
+      btn.addEventListener('click', () => this.executeChombo(i));
+      container.appendChild(btn);
+    });
+
+    document.getElementById('chombo-modal').style.display = 'flex';
+  }
+
+  executeChombo(playerIndex) {
+    this.gameState.saveToHistory();
+
+    // 満貫払い
+    const isDealer = this.gameState.isDealer(playerIndex);
+    const penalty = isDealer ? 12000 : 8000;
+    const othersGet = penalty / (this.gameState.players.length - 1);
+
+    this.gameState.players[playerIndex].score -= penalty;
+    this.gameState.players.forEach((p, i) => {
+      if (i !== playerIndex) {
+        p.score += othersGet;
+      }
+    });
+
+    // 同局やり直し（積み棒加算なし）
+
+    // Check bust (トビ)
+    if (this.checkBust()) {
+      this.hideModal('chombo-modal');
+      this.showResults();
+      return;
+    }
+
+    this.hideModal('chombo-modal');
+    this.updateUI();
+  }
+
+  undo() {
+    if (this.gameState.undo()) {
+      this.updateUI();
+    }
+  }
+
+  newGame() {
+    // Not used anymore
+  }
+
+  showConfirmEndModal() {
+    this.hideModal('menu-modal');
+    document.getElementById('confirm-end-modal').style.display = 'flex';
+  }
+
+  endGame() {
+    // 結果を表示してからセットアップに戻る
+    this.hideModal('confirm-end-modal');
+    this.showResults();
+  }
+
+  showResults() {
+    const results = this.gameState.getResults();
+    const container = document.getElementById('result-list');
+    container.innerHTML = '';
+
+    results.forEach(r => {
+      const item = document.createElement('div');
+      item.className = 'result-item';
+      item.innerHTML = `
+        <span class="result-rank">${r.rank}位</span>
+        <span class="result-name">${r.name}</span>
+        <span class="result-score">${r.score.toLocaleString()}</span>
+        <span class="result-pts ${r.pts >= 0 ? 'positive' : 'negative'}">${r.pts >= 0 ? '+' : ''}${r.pts}</span>
+      `;
+      container.appendChild(item);
+    });
+
+    document.getElementById('game-screen').style.display = 'none';
+    document.getElementById('result-screen').style.display = 'flex';
+    this.gameState.clearLocalStorage();
+  }
+
+  backToSetup() {
+    document.getElementById('result-screen').style.display = 'none';
+    document.getElementById('setup-screen').style.display = 'flex';
+    document.getElementById('btn-resume').style.display = 'none';
+    this.gameState.reset();
+  }
+
+  showModal(modalId) {
+    document.getElementById(modalId).style.display = 'flex';
+  }
+
+  hideModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+  }
+
+  /**
+   * 計算ツールを開き、現在のプレイヤー状態を送信（直接埋め込み版）
+   */
+  openCalculatorWithState() {
+    this.showModal('calculator-modal');
+
+    // 現在の和了者の情報を取得
+    const playerIndex = this.currentAgariTarget;
+    if (playerIndex === undefined || playerIndex === null) return;
+
+    const player = this.gameState.players[playerIndex];
+    const dealerIndex = this.gameState.dealerIndex;
+
+    // 自風を計算（東=1,南=2,西=3,北=4）
+    let jikaze = ((playerIndex - dealerIndex + 4) % 4) + 1;
+
+    // 場風を取得（東場=1, 南場=2）
+    const bakaze = this.gameState.isEast ? 1 : 2;
+
+    // ツモ/ロンを取得（現在のモーダルから）
+    const agariModal = document.getElementById('agari-modal');
+    const isTsumo = agariModal?.querySelector('h2')?.textContent.includes('ツモ');
+
+    // 計算ツールの状態を設定（直接埋め込み版）
+    if (typeof openCalculatorWithManagerState === 'function') {
+      openCalculatorWithManagerState(isTsumo, bakaze, jikaze, player.isRiichi);
+    }
+  }
+
+  // ======================================
+  // Double Ron (ダブロン/トリプルロン)
+  // ======================================
+  showDoubleRonModal() {
+    this.hideModal('menu-modal');
+
+    this.doubleRonState = {
+      loser: null,
+      winners: [],         // 選択された和了者のインデックス
+      winnerData: [],      // 各和了者の{fu, han}
+      currentWinnerIdx: 0, // 現在入力中の和了者
+      currentFu: 30,
+      currentHan: 1,
+    };
+
+    // Step 1: 放銃者選択ボタンを生成
+    const loserContainer = document.getElementById('double-ron-loser-buttons');
+    loserContainer.innerHTML = '';
+    this.gameState.players.forEach((player, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'target-btn';
+      btn.textContent = player.name;
+      btn.addEventListener('click', () => this.selectDoubleRonLoser(i));
+      loserContainer.appendChild(btn);
+    });
+
+    // ステップの表示/非表示
+    document.getElementById('double-ron-step1').style.display = 'block';
+    document.getElementById('double-ron-step2').style.display = 'none';
+    document.getElementById('double-ron-step3').style.display = 'none';
+    document.getElementById('btn-double-ron-confirm').style.display = 'none';
+
+    document.getElementById('double-ron-modal').style.display = 'flex';
+  }
+
+  selectDoubleRonLoser(loserIndex) {
+    this.doubleRonState.loser = loserIndex;
+
+    // ボタンのアクティブ状態を更新
+    document.querySelectorAll('#double-ron-loser-buttons .target-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', i === loserIndex);
+    });
+
+    // Step 2: 和了者選択へ
+    const winnerContainer = document.getElementById('double-ron-winner-buttons');
+    winnerContainer.innerHTML = '';
+    this.gameState.players.forEach((player, i) => {
+      if (i !== loserIndex) {
+        const btn = document.createElement('button');
+        btn.className = 'target-btn';
+        btn.textContent = player.name;
+        btn.dataset.index = i;
+        btn.addEventListener('click', () => this.toggleDoubleRonWinner(i, btn));
+        winnerContainer.appendChild(btn);
+      }
+    });
+
+    document.getElementById('double-ron-step2').style.display = 'block';
+  }
+
+  toggleDoubleRonWinner(winnerIndex, btn) {
+    const idx = this.doubleRonState.winners.indexOf(winnerIndex);
+    if (idx === -1) {
+      this.doubleRonState.winners.push(winnerIndex);
+      btn.classList.add('active');
+    } else {
+      this.doubleRonState.winners.splice(idx, 1);
+      btn.classList.remove('active');
+    }
+
+    // 2人以上選択されたら符翻入力へ進めるようにする
+    if (this.doubleRonState.winners.length >= 2) {
+      // 符翻入力ステップへ
+      this.startDoubleRonFuHanInput();
+    }
+  }
+
+  startDoubleRonFuHanInput() {
+    this.doubleRonState.currentWinnerIdx = 0;
+    this.doubleRonState.winnerData = [];
+    this.doubleRonState.currentFu = 30;
+    this.doubleRonState.currentHan = 1;
+
+    this.showDoubleRonFuHanStep();
+    document.getElementById('double-ron-step3').style.display = 'block';
+  }
+
+  showDoubleRonFuHanStep() {
+    const state = this.doubleRonState;
+    const winnerIdx = state.winners[state.currentWinnerIdx];
+    const winnerName = this.gameState.players[winnerIdx].name;
+
+    document.getElementById('double-ron-current-winner').textContent =
+      `${winnerName} の符・翻を入力 (${state.currentWinnerIdx + 1}/${state.winners.length}人目):`;
+
+    // リセット
+    document.querySelectorAll('.double-ron-fu-buttons .fu-btn').forEach(btn => {
+      btn.classList.toggle('active', parseInt(btn.dataset.fu) === 30);
+    });
+    document.querySelectorAll('.double-ron-han-buttons .han-btn').forEach(btn => {
+      btn.classList.toggle('active', parseInt(btn.dataset.han) === 1);
+    });
+    state.currentFu = 30;
+    state.currentHan = 1;
+
+    // 最後の和了者の場合は確定ボタン表示
+    if (state.currentWinnerIdx === state.winners.length - 1) {
+      document.getElementById('btn-double-ron-next-winner').style.display = 'none';
+      document.getElementById('btn-double-ron-confirm').style.display = 'inline-block';
+    } else {
+      document.getElementById('btn-double-ron-next-winner').style.display = 'inline-block';
+      document.getElementById('btn-double-ron-confirm').style.display = 'none';
+    }
+  }
+
+  selectDoubleRonFu(fu) {
+    this.doubleRonState.currentFu = fu;
+    document.querySelectorAll('.double-ron-fu-buttons .fu-btn').forEach(btn => {
+      btn.classList.toggle('active', parseInt(btn.dataset.fu) === fu);
+    });
+  }
+
+  selectDoubleRonHan(han) {
+    this.doubleRonState.currentHan = han;
+    document.querySelectorAll('.double-ron-han-buttons .han-btn').forEach(btn => {
+      btn.classList.toggle('active', parseInt(btn.dataset.han) === han);
+    });
+  }
+
+  nextDoubleRonWinner() {
+    const state = this.doubleRonState;
+
+    // 現在の和了者のデータを保存
+    state.winnerData.push({
+      winner: state.winners[state.currentWinnerIdx],
+      fu: state.currentFu,
+      han: state.currentHan,
+    });
+
+    // 次の和了者へ
+    state.currentWinnerIdx++;
+    this.showDoubleRonFuHanStep();
+  }
+
+  confirmDoubleRon() {
+    try {
+      const state = this.doubleRonState;
+
+      // 最後の和了者のデータも保存
+      state.winnerData.push({
+        winner: state.winners[state.currentWinnerIdx],
+        fu: state.currentFu,
+        han: state.currentHan,
+      });
+
+      // 履歴保存
+      this.gameState.saveToHistory();
+
+      // 供託は最初の和了者（頭ハネ or 上家取り）が取得
+      const firstWinner = state.winnerData[0].winner;
+      const kyoutakuBonus = this.gameState.kyoutaku * 1000;
+      this.gameState.players[firstWinner].score += kyoutakuBonus;
+      this.gameState.kyoutaku = 0;
+
+      const is3Player = this.gameState.gameMode === '3player';
+      const honbaBonus = this.gameState.honba * 300;
+
+      // 各和了者への点数計算
+      state.winnerData.forEach(data => {
+        const isDealer = this.gameState.isDealer(data.winner);
+        const result = ScoreCalculator.calculate(data.fu, data.han, isDealer, false, is3Player);
+
+        // 本場ボーナスは各和了者に加算
+        const totalScore = result.total + honbaBonus;
+
+        // 放銃者から和了者へ
+        this.gameState.players[state.loser].score -= totalScore;
+        this.gameState.players[data.winner].score += totalScore;
+      });
+
+      // リーチリセット
+      this.gameState.players.forEach(p => p.isRiichi = false);
+
+      // 和了者に親が含まれているかチェック
+      const anyWinnerIsDealer = state.winnerData.some(
+        data => this.gameState.isDealer(data.winner)
+      );
+
+      // 親の移動（和了者に親がいれば連荘、いなければ親流れ）
+      // 本場の操作はadvanceRoundに任せる（二重処理を防ぐ）
+      const gameEnd = this.gameState.advanceRound(anyWinnerIsDealer);
+
+      this.hideModal('double-ron-modal');
+
+      if (this.checkBust() || gameEnd || this.gameState.checkGameEnd()) {
+        this.endGame();
+      } else {
+        this.gameState.saveToLocalStorage();
+        this.updateUI();
+      }
+    } catch (error) {
+      console.error('Error in confirmDoubleRon:', error);
+      alert('ダブロン計算中にエラーが発生しました: ' + error.message);
+      this.hideModal('double-ron-modal');
+    }
+  }
+}
+
+// ======================================
+// Initialize
+// ======================================
+document.addEventListener('DOMContentLoaded', () => {
+  const gameState = new GameState();
+  window.app = new UIController(gameState);
+
+  // デスクトップでは符計算早見表をデフォルトで開く
+  const fuDetails = document.querySelector('.fu-reference-details');
+  if (fuDetails && window.innerWidth > 700) {
+    fuDetails.setAttribute('open', '');
+  }
+});
+
+// ========== calculator.js ==========
+/**
+ * calculator.js - 計算ツール（直接埋め込み版）
+ */
+
+// 計算ツールの状態
+const calcState = {
+    hand: [],
+    agariTile: null,
+    melds: [],
+    options: {
+        tsumo: true,
+        bakaze: 1,
+        jikaze: 2,
+        doraCount: 0,
+        riichi: false,
+        ippatsu: false,
+        doubleRiichi: false,
+        rinshan: false,
+        chankan: false,
+        haitei: false
+    },
+    meldInputState: null,
+    lastResult: null
+};
+
+// 牌の文字マップ
+const CALC_TILE_CHARS = {
+    '1m': '一', '2m': '二', '3m': '三', '4m': '四', '5m': '五', '6m': '六', '7m': '七', '8m': '八', '9m': '九',
+    '1p': '①', '2p': '②', '3p': '③', '4p': '④', '5p': '⑤', '6p': '⑥', '7p': '⑦', '8p': '⑧', '9p': '⑨',
+    '1s': '1', '2s': '2', '3s': '3', '4s': '4', '5s': '5', '6s': '6', '7s': '7', '8s': '8', '9s': '9',
+    '1z': '東', '2z': '南', '3z': '西', '4z': '北', '5z': '白', '6z': '發', '7z': '中'
+};
+
+const CALC_TILES = {
+    m: ['1m', '2m', '3m', '4m', '5m', '6m', '7m', '8m', '9m'],
+    p: ['1p', '2p', '3p', '4p', '5p', '6p', '7p', '8p', '9p'],
+    s: ['1s', '2s', '3s', '4s', '5s', '6s', '7s', '8s', '9s'],
+    z: ['1z', '2z', '3z', '4z', '5z', '6z', '7z']
+};
+
+/**
+ * 計算ツールを初期化
+ */
+function initCalculator() {
+    initCalcTileSelector();
+    setupCalcEventListeners();
+}
+
+/**
+ * 牌選択UIを初期化
+ */
+function initCalcTileSelector() {
+    for (const suit of ['m', 'p', 's', 'z']) {
+        const container = document.querySelector(`#calc-tile-selector .calc-tiles-group[data-suit="${suit}"]`);
+        if (!container) continue;
+
+        container.innerHTML = '';
+        const tiles = CALC_TILES[suit] || [];
+        for (const tile of tiles) {
+            const tileEl = createCalcTileElement(tile);
+            tileEl.addEventListener('click', () => addCalcTileToHand(tile));
+            container.appendChild(tileEl);
+        }
+    }
+}
+
+/**
+ * 牌要素を作成
+ */
+function createCalcTileElement(tile, size = 'normal') {
+    const div = document.createElement('div');
+    div.className = `calc-tile ${size === 'small' ? 'small' : ''}`;
+    div.dataset.tile = tile;
+    div.dataset.suit = tile[1];
+    div.textContent = CALC_TILE_CHARS[tile] || tile;
+    return div;
+}
+
+/**
+ * 計算ツールをリセット
+ */
+function resetCalculator() {
+    calcState.hand = [];
+    calcState.agariTile = null;
+    calcState.melds = [];
+    calcState.options.doraCount = 0;
+    calcState.options.riichi = false;
+    calcState.options.ippatsu = false;
+    calcState.options.doubleRiichi = false;
+    calcState.options.rinshan = false;
+    calcState.options.chankan = false;
+    calcState.options.haitei = false;
+    calcState.meldInputState = null;
+    calcState.lastResult = null;
+
+    updateCalcHandDisplay();
+    updateCalcMeldsDisplay();
+    hideCalcResult();
+
+    document.getElementById('calc-dora-count').textContent = '0';
+
+    ['calc-riichi', 'calc-ippatsu', 'calc-double-riichi', 'calc-rinshan', 'calc-chankan', 'calc-haitei'].forEach(id => {
+        document.getElementById(id)?.classList.remove('active');
+    });
+}
+
+/**
+ * イベントリスナーを設定
+ */
+function setupCalcEventListeners() {
+    // クリアボタン
+    document.getElementById('calc-clear-hand')?.addEventListener('click', () => {
+        calcState.hand = [];
+        calcState.agariTile = null;
+        calcState.melds = [];
+        updateCalcHandDisplay();
+        updateCalcMeldsDisplay();
+        hideCalcResult();
+    });
+
+    // ツモ/ロン
+    document.getElementById('calc-agari-tsumo')?.addEventListener('click', () => {
+        calcState.options.tsumo = true;
+        document.getElementById('calc-agari-tsumo')?.classList.add('active');
+        document.getElementById('calc-agari-ron')?.classList.remove('active');
+    });
+    document.getElementById('calc-agari-ron')?.addEventListener('click', () => {
+        calcState.options.tsumo = false;
+        document.getElementById('calc-agari-ron')?.classList.add('active');
+        document.getElementById('calc-agari-tsumo')?.classList.remove('active');
+    });
+
+    // 場風
+    document.getElementById('calc-bakaze-1')?.addEventListener('click', () => setCalcBakaze(1));
+    document.getElementById('calc-bakaze-2')?.addEventListener('click', () => setCalcBakaze(2));
+
+    // 自風
+    for (let i = 1; i <= 4; i++) {
+        document.getElementById(`calc-jikaze-${i}`)?.addEventListener('click', () => setCalcJikaze(i));
+    }
+
+    // ドラカウンター
+    document.getElementById('calc-dora-minus')?.addEventListener('click', () => changeCalcCounter('doraCount', -1));
+    document.getElementById('calc-dora-plus')?.addEventListener('click', () => changeCalcCounter('doraCount', 1));
+
+    // トグルボタン
+    setupCalcToggleButton('calc-riichi', 'riichi');
+    setupCalcToggleButton('calc-ippatsu', 'ippatsu');
+    setupCalcToggleButton('calc-double-riichi', 'doubleRiichi');
+    setupCalcToggleButton('calc-rinshan', 'rinshan');
+    setupCalcToggleButton('calc-chankan', 'chankan');
+    setupCalcToggleButton('calc-haitei', 'haitei');
+
+    // 副露ボタン
+    document.getElementById('calc-add-pon')?.addEventListener('click', () => showCalcMeldInput('pon'));
+    document.getElementById('calc-add-chi')?.addEventListener('click', () => showCalcMeldInput('chi'));
+    document.getElementById('calc-add-kan')?.addEventListener('click', () => showCalcMeldInput('kan'));
+
+    // 計算ボタン
+    document.getElementById('calc-calculate-btn')?.addEventListener('click', calcAndDisplayScore);
+
+    // 結果反映ボタン
+    document.getElementById('calc-send-result')?.addEventListener('click', sendCalcResult);
+}
+
+function setupCalcToggleButton(elementId, optionKey) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+
+    el.addEventListener('click', () => {
+        calcState.options[optionKey] = !calcState.options[optionKey];
+        el.classList.toggle('active', calcState.options[optionKey]);
+    });
+}
+
+function setCalcBakaze(value) {
+    calcState.options.bakaze = value;
+    document.getElementById('calc-bakaze-1')?.classList.toggle('active', value === 1);
+    document.getElementById('calc-bakaze-2')?.classList.toggle('active', value === 2);
+}
+
+function setCalcJikaze(value) {
+    calcState.options.jikaze = value;
+    for (let i = 1; i <= 4; i++) {
+        document.getElementById(`calc-jikaze-${i}`)?.classList.toggle('active', value === i);
+    }
+}
+
+function changeCalcCounter(key, delta) {
+    const current = calcState.options[key] || 0;
+    const newValue = Math.max(0, Math.min(20, current + delta));
+    calcState.options[key] = newValue;
+    document.getElementById('calc-dora-count').textContent = newValue;
+}
+
+/**
+ * 手牌に牌を追加
+ */
+function addCalcTileToHand(tile) {
+    const totalTiles = calcState.hand.length + (calcState.agariTile ? 1 : 0);
+
+    if (totalTiles < 14) {
+        if (totalTiles < 13) {
+            calcState.hand.push(tile);
+        } else {
+            calcState.agariTile = tile;
+        }
+        updateCalcHandDisplay();
+        hideCalcResult();
+    }
+}
+
+/**
+ * 手牌表示を更新
+ */
+function updateCalcHandDisplay() {
+    const handContainer = document.getElementById('calc-hand-tiles');
+    const agariContainer = document.getElementById('calc-agari-tile');
+    const tileCount = document.getElementById('calc-tile-count');
+
+    if (!handContainer) return;
+
+    handContainer.innerHTML = '';
+    const sortedHand = sortCalcTiles(calcState.hand);
+    for (const tile of sortedHand) {
+        const tileEl = createCalcTileElement(tile, 'small');
+        tileEl.addEventListener('click', () => removeCalcTileFromHand(tile));
+        handContainer.appendChild(tileEl);
+    }
+
+    if (agariContainer) {
+        agariContainer.innerHTML = '';
+        if (calcState.agariTile) {
+            const agariEl = createCalcTileElement(calcState.agariTile, 'small');
+            agariEl.addEventListener('click', () => {
+                calcState.agariTile = null;
+                updateCalcHandDisplay();
+            });
+            agariContainer.appendChild(agariEl);
+        }
+    }
+
+    const total = calcState.hand.length + (calcState.agariTile ? 1 : 0);
+    if (tileCount) tileCount.textContent = `${total}/14枚`;
+}
+
+function removeCalcTileFromHand(tile) {
+    const index = calcState.hand.indexOf(tile);
+    if (index > -1) {
+        calcState.hand.splice(index, 1);
+        updateCalcHandDisplay();
+    }
+}
+
+function sortCalcTiles(tiles) {
+    const order = { m: 0, p: 1, s: 2, z: 3 };
+    return [...tiles].sort((a, b) => {
+        const suitDiff = order[a[1]] - order[b[1]];
+        if (suitDiff !== 0) return suitDiff;
+        return parseInt(a[0]) - parseInt(b[0]);
+    });
+}
+
+/**
+ * 副露入力
+ */
+function showCalcMeldInput(type) {
+    const typeName = type === 'pon' ? 'ポン' : type === 'chi' ? 'チー' : 'カン';
+    const requiredCount = type === 'kan' ? 4 : 3;
+
+    if (calcState.hand.length < requiredCount) {
+        alert(`${typeName}するには手牌に${requiredCount}枚以上必要です`);
+        return;
+    }
+
+    // 入力可能な牌の組み合わせがあるかチェック
+    const availableMelds = getAvailableMeldsForType(type);
+    if (availableMelds.length === 0) {
+        if (type === 'pon') {
+            alert('ポンできる牌がありません（同じ牌が3枚以上必要です）');
+        } else if (type === 'chi') {
+            alert('チーできる牌がありません（連続した数牌が3枚必要です）');
+        } else {
+            alert('カンできる牌がありません（同じ牌が4枚必要です）');
+        }
+        return;
+    }
+
+    calcState.meldInputState = {
+        type: type,
+        typeName: typeName,
+        requiredCount: requiredCount,
+        selectedTiles: [],
+        availableMelds: availableMelds
+    };
+
+    updateCalcMeldInputUI();
+}
+
+/**
+ * 指定されたタイプで作成可能な副露のリストを取得
+ */
+function getAvailableMeldsForType(type) {
+    const availableMelds = [];
+    const handCount = {};
+
+    // 手牌の枚数をカウント
+    for (const tile of calcState.hand) {
+        handCount[tile] = (handCount[tile] || 0) + 1;
+    }
+
+    if (type === 'pon') {
+        // ポン: 同じ牌が3枚以上
+        for (const [tile, count] of Object.entries(handCount)) {
+            if (count >= 3) {
+                availableMelds.push([tile, tile, tile]);
+            }
+        }
+    } else if (type === 'kan') {
+        // カン: 同じ牌が4枚
+        for (const [tile, count] of Object.entries(handCount)) {
+            if (count >= 4) {
+                availableMelds.push([tile, tile, tile, tile]);
+            }
+        }
+    } else if (type === 'chi') {
+        // チー: 連続した数牌3枚
+        for (const suit of ['m', 'p', 's']) {
+            for (let num = 1; num <= 7; num++) {
+                const t1 = num + suit;
+                const t2 = (num + 1) + suit;
+                const t3 = (num + 2) + suit;
+                if (handCount[t1] && handCount[t2] && handCount[t3]) {
+                    availableMelds.push([t1, t2, t3]);
+                }
+            }
+        }
+    }
+
+    return availableMelds;
+}
+
+function updateCalcMeldInputUI() {
+    const state = calcState.meldInputState;
+    if (!state) return;
+
+    const container = document.getElementById('calc-melds-display');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    // 既存の副露
+    for (let i = 0; i < calcState.melds.length; i++) {
+        const meld = calcState.melds[i];
+        const meldGroup = document.createElement('div');
+        meldGroup.className = 'calc-meld-group';
+        for (const tile of meld.tiles) {
+            meldGroup.appendChild(createCalcTileElement(tile, 'small'));
+        }
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'calc-btn-small';
+        removeBtn.textContent = '×';
+        removeBtn.addEventListener('click', () => { removeCalcMeld(i); updateCalcMeldInputUI(); });
+        meldGroup.appendChild(removeBtn);
+        container.appendChild(meldGroup);
+    }
+
+    // 入力エリア
+    const inputArea = document.createElement('div');
+    inputArea.className = 'calc-meld-input-area';
+    inputArea.innerHTML = `
+    <div class="calc-meld-input-header">
+      ${state.typeName}を選択 (${state.selectedTiles.length}/${state.requiredCount})
+      <button id="calc-cancel-meld" class="calc-btn-small">キャンセル</button>
+      <button id="calc-confirm-meld" class="calc-btn-small" ${state.selectedTiles.length === state.requiredCount ? '' : 'disabled'}>確定</button>
+    </div>
+    <div class="calc-meld-select-tiles"></div>
+  `;
+    container.appendChild(inputArea);
+
+    // 選択可能な牌
+    const selectArea = inputArea.querySelector('.calc-meld-select-tiles');
+    const availableTiles = getCalcAvailableTilesForMeld();
+
+    for (const tile of availableTiles) {
+        const tileEl = createCalcTileElement(tile, 'small');
+        if (state.selectedTiles.includes(tile)) {
+            tileEl.classList.add('selected');
+        }
+        tileEl.addEventListener('click', () => toggleCalcMeldTileSelection(tile));
+        selectArea.appendChild(tileEl);
+    }
+
+    document.getElementById('calc-cancel-meld')?.addEventListener('click', cancelCalcMeldInput);
+    document.getElementById('calc-confirm-meld')?.addEventListener('click', confirmCalcMeldInput);
+}
+
+function getCalcAvailableTilesForMeld() {
+    const selectedCount = {};
+    for (const t of calcState.meldInputState.selectedTiles) {
+        selectedCount[t] = (selectedCount[t] || 0) + 1;
+    }
+
+    const available = [];
+    const handCount = {};
+    for (const t of calcState.hand) {
+        handCount[t] = (handCount[t] || 0) + 1;
+    }
+
+    for (const tile of Object.keys(handCount)) {
+        const remaining = handCount[tile] - (selectedCount[tile] || 0);
+        for (let i = 0; i < remaining; i++) {
+            available.push(tile);
+        }
+    }
+
+    return sortCalcTiles(available);
+}
+
+function toggleCalcMeldTileSelection(tile) {
+    const state = calcState.meldInputState;
+    if (!state) return;
+
+    const idx = state.selectedTiles.indexOf(tile);
+    if (idx >= 0) {
+        state.selectedTiles.splice(idx, 1);
+    } else if (state.selectedTiles.length < state.requiredCount) {
+        state.selectedTiles.push(tile);
+    }
+
+    updateCalcMeldInputUI();
+}
+
+function cancelCalcMeldInput() {
+    calcState.meldInputState = null;
+    updateCalcMeldsDisplay();
+}
+
+function confirmCalcMeldInput() {
+    const state = calcState.meldInputState;
+    if (!state || state.selectedTiles.length !== state.requiredCount) return;
+
+    // 選択された牌が正しい組み合わせか検証
+    const sortedTiles = sortCalcTiles([...state.selectedTiles]);
+    if (!isValidMeldCombination(state.type, sortedTiles)) {
+        if (state.type === 'pon') {
+            alert('ポンは同じ牌を3枚選んでください');
+        } else if (state.type === 'chi') {
+            alert('チーは連続した数牌を3枚選んでください');
+        } else {
+            alert('カンは同じ牌を4枚選んでください');
+        }
+        return;
+    }
+
+    for (const tile of state.selectedTiles) {
+        const idx = calcState.hand.indexOf(tile);
+        if (idx >= 0) calcState.hand.splice(idx, 1);
+    }
+
+    calcState.melds.push({
+        type: state.type === 'pon' ? 'koutsu' : state.type === 'chi' ? 'shuntsu' : 'kantsu',
+        tiles: sortedTiles,
+        isAnkou: false
+    });
+
+    calcState.meldInputState = null;
+    updateCalcHandDisplay();
+    updateCalcMeldsDisplay();
+}
+
+/**
+ * 選択された牌が正しい副露の組み合わせかチェック
+ */
+function isValidMeldCombination(type, tiles) {
+    if (type === 'pon') {
+        // ポン: 3枚すべて同じ
+        return tiles.length === 3 && tiles[0] === tiles[1] && tiles[1] === tiles[2];
+    } else if (type === 'kan') {
+        // カン: 4枚すべて同じ
+        return tiles.length === 4 && tiles[0] === tiles[1] && tiles[1] === tiles[2] && tiles[2] === tiles[3];
+    } else if (type === 'chi') {
+        // チー: 連続した数牌3枚
+        if (tiles.length !== 3) return false;
+        const suit = tiles[0][1];
+        if (suit === 'z') return false; // 字牌はチーできない
+        if (tiles[1][1] !== suit || tiles[2][1] !== suit) return false; // 同じ種類
+        const nums = tiles.map(t => parseInt(t[0])).sort((a, b) => a - b);
+        return nums[1] === nums[0] + 1 && nums[2] === nums[1] + 1;
+    }
+    return false;
+}
+
+function updateCalcMeldsDisplay() {
+    const container = document.getElementById('calc-melds-display');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    for (let i = 0; i < calcState.melds.length; i++) {
+        const meld = calcState.melds[i];
+        const meldGroup = document.createElement('div');
+        meldGroup.className = 'calc-meld-group';
+        for (const tile of meld.tiles) {
+            meldGroup.appendChild(createCalcTileElement(tile, 'small'));
+        }
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'calc-btn-small';
+        removeBtn.textContent = '×';
+        removeBtn.addEventListener('click', () => removeCalcMeld(i));
+        meldGroup.appendChild(removeBtn);
+        container.appendChild(meldGroup);
+    }
+}
+
+function removeCalcMeld(index) {
+    calcState.melds.splice(index, 1);
+    updateCalcMeldsDisplay();
+}
+
+/**
+ * 点数計算
+ */
+function calcAndDisplayScore() {
+    if (calcState.hand.length !== 13) {
+        showCalcError(`手牌が13枚必要です（現在: ${calcState.hand.length}枚）`);
+        return;
+    }
+
+    if (!calcState.agariTile) {
+        showCalcError('アガリ牌を選択してください');
+        return;
+    }
+
+    // 手牌オブジェクトを構築
+    const handObj = {
+        tiles: [...calcState.hand, calcState.agariTile],
+        agariTile: calcState.agariTile,
+        melds: calcState.melds
+    };
+
+    try {
+        // score-calculator.jsのcalculateScore関数を呼び出し
+        const result = window.calculateScore(handObj, calcState.options);
+        calcState.lastResult = result;
+        displayCalcResult(result);
+    } catch (error) {
+        console.error('計算エラー:', error);
+        showCalcError('計算中にエラーが発生しました: ' + error.message);
+    }
+}
+
+function displayCalcResult(result) {
+    const section = document.getElementById('calc-result-section');
+    const labelEl = document.getElementById('calc-result-label');
+    const scoreEl = document.getElementById('calc-result-score');
+    const paymentEl = document.getElementById('calc-result-payment');
+    const fuEl = document.getElementById('calc-breakdown-fu');
+    const hanEl = document.getElementById('calc-breakdown-han');
+    const yakuEl = document.getElementById('calc-breakdown-yaku');
+
+    if (!section) return;
+
+    if (result.error) {
+        section.style.display = 'block';
+        scoreEl.textContent = 'エラー';
+        paymentEl.innerHTML = `<span class="calc-error-message">${result.message}</span>`;
+        fuEl.innerHTML = '';
+        hanEl.innerHTML = '';
+        yakuEl.innerHTML = '';
+        return;
+    }
+
+    section.style.display = 'block';
+
+    const oyaKo = result.isOya ? '親' : '子';
+    const tsumoRon = result.isTsumo ? 'ツモ' : 'ロン';
+    labelEl.textContent = `${oyaKo}・${tsumoRon}${result.name ? '・' + result.name : ''}`;
+
+    const scoreText = result.score.text.replace(/(\d+)点/, (m, num) => parseInt(num).toLocaleString() + '点');
+    scoreEl.textContent = scoreText;
+
+    if (result.isTsumo && result.score.ko && result.score.ko.length > 0) {
+        if (result.isOya) {
+            paymentEl.textContent = `子から ${result.score.ko[0].toLocaleString()}点ずつ`;
+        } else {
+            paymentEl.textContent = `子 ${result.score.ko[0].toLocaleString()}点 / 親 ${result.score.oya.toLocaleString()}点`;
+        }
+    } else {
+        paymentEl.textContent = `放銃者から ${result.score.base.toLocaleString()}点`;
+    }
+
+    if (result.fu > 0) {
+        const fuBreakdownText = result.fuBreakdown.map(f => `${f.name}${f.fu}符`).join(' + ');
+        fuEl.innerHTML = `<strong>${result.fu}符</strong>（${fuBreakdownText}）`;
+    } else {
+        fuEl.innerHTML = '<strong>符計算なし</strong>';
+    }
+
+    const han = result.han;
+    const doraCount = calcState.options.doraCount || 0;
+
+    let hanText = `<strong>${han}翻</strong>（`;
+    const hanItems = result.yakuList.map(y => `${y.name}${y.han}翻`);
+    if (doraCount > 0) hanItems.push(`ドラ${doraCount}翻`);
+    hanText += hanItems.join(' + ') + '）';
+    hanEl.innerHTML = hanText;
+
+    yakuEl.innerHTML = '';
+    for (const yaku of result.yakuList) {
+        const tag = document.createElement('span');
+        tag.className = `calc-yaku-tag ${yaku.yakuman ? 'yakuman' : ''}`;
+        tag.textContent = `${yaku.name} ${yaku.han}翻`;
+        yakuEl.appendChild(tag);
+    }
+    if (doraCount > 0) {
+        const doraTag = document.createElement('span');
+        doraTag.className = 'calc-yaku-tag';
+        doraTag.textContent = `ドラ ${doraCount}翻`;
+        yakuEl.appendChild(doraTag);
+    }
+}
+
+function showCalcError(message) {
+    displayCalcResult({ error: true, message });
+}
+
+function hideCalcResult() {
+    const section = document.getElementById('calc-result-section');
+    if (section) section.style.display = 'none';
+}
+
+/**
+ * 結果を管理ツールに反映
+ */
+function sendCalcResult() {
+    if (!calcState.lastResult || calcState.lastResult.error) {
+        alert('先に点数計算を実行してください');
+        return;
+    }
+
+    const result = calcState.lastResult;
+
+    // UIControllerのインスタンスを取得して符・翻を設定
+    if (window.app) {
+        window.app.selectFu(result.fu);
+        window.app.selectHan(result.han);
+        window.app.selectDoubleRonFu(result.fu);
+        window.app.selectDoubleRonHan(result.han);
+    }
+
+    // 計算ツールモーダルを閉じる
+    const modal = document.getElementById('calculator-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+/**
+ * 計算ツールを開いて状態を設定
+ */
+function openCalculatorWithManagerState(isTsumo, bakaze, jikaze, isRiichi) {
+    resetCalculator();
+
+    // ツモ/ロン
+    calcState.options.tsumo = isTsumo;
+    document.getElementById('calc-agari-tsumo')?.classList.toggle('active', isTsumo);
+    document.getElementById('calc-agari-ron')?.classList.toggle('active', !isTsumo);
+
+    // 場風
+    setCalcBakaze(bakaze);
+
+    // 自風
+    setCalcJikaze(jikaze);
+
+    // 立直
+    if (isRiichi) {
+        calcState.options.riichi = true;
+        document.getElementById('calc-riichi')?.classList.add('active');
+    }
+}
+
+// 初期化
+document.addEventListener('DOMContentLoaded', initCalculator);
+    </script>
+</body>
+
+</html>

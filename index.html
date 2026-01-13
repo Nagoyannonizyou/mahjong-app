@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>麻雀点数管理</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- ゲーム開始画面 -->
+    <div id="setup-screen" class="screen">
+        <div class="setup-container">
+            <h1>麻雀点数管理</h1>
+            <div class="mode-select">
+                <button id="btn-4player" class="mode-btn active">4人打ち</button>
+                <button id="btn-3player" class="mode-btn">3人打ち</button>
+            </div>
+            <div class="round-type-select">
+                <button id="btn-hanchan" class="round-type-btn active">半荘（ハンチャン）</button>
+                <button id="btn-tonpuu" class="round-type-btn">東風（トンプウ）</button>
+            </div>
+            <div class="player-names">
+                <input type="text" id="player1-name" placeholder="プレイヤー1（下）" value="Player 1" data-default="Player 1">
+                <input type="text" id="player2-name" placeholder="プレイヤー2（右）" value="Player 2" data-default="Player 2">
+                <input type="text" id="player3-name" placeholder="プレイヤー3（上）" value="Player 3" data-default="Player 3">
+                <input type="text" id="player4-name" placeholder="プレイヤー4（左）" value="Player 4" data-default="Player 4">
+            </div>
+            <button id="btn-start" class="primary-btn">ゲーム開始</button>
+            <button id="btn-resume" class="secondary-btn" style="display: none;">前回の続きから</button>
+        </div>
+    </div>
+
+    <!-- メインゲーム画面 -->
+    <div id="game-screen" class="screen" style="display: none;">
+        <!-- 中央情報エリア -->
+        <div id="central-hud">
+            <div class="round-info">
+                <span id="round-wind">東</span><span id="round-number">1</span>局
+                <span id="honba-count">0</span>本場
+            </div>
+            <div class="kyoutaku-info">
+                供託: <span id="kyoutaku-count">0</span>
+            </div>
+            <div class="central-buttons">
+                <button id="btn-ryukyoku" class="action-btn">流局</button>
+                <button id="btn-double-ron-hud" class="action-btn">W/Tロン</button>
+                <button id="btn-undo" class="action-btn" disabled>戻る</button>
+                <button id="btn-menu" class="action-btn">≡</button>
+            </div>
+        </div>
+
+        <!-- プレイヤーエリア（下 - 正位置） -->
+        <div id="player-area-1" class="player-area position-bottom">
+            <div class="player-content">
+                <div class="player-header">
+                    <span class="wind-indicator"></span>
+                    <span class="player-name">Player 1</span>
+                    <span class="player-rank"></span>
+                    <span class="dealer-indicator" style="display: none;">親</span>
+                    <span class="riichi-indicator" style="display: none;">リーチ</span>
+                </div>
+                <div class="player-score">25000</div>
+                <div class="player-actions">
+                    <button class="btn-riichi" data-player="0">立直</button>
+                    <button class="btn-tsumo" data-player="0">ツモ</button>
+                    <button class="btn-ron" data-player="0">ロン</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- プレイヤーエリア（右 - 270度回転） Player2は時計回りで右 -->
+        <div id="player-area-2" class="player-area position-right">
+            <div class="player-content">
+                <div class="player-header">
+                    <span class="wind-indicator"></span>
+                    <span class="player-name">Player 2</span>
+                    <span class="player-rank"></span>
+                    <span class="dealer-indicator" style="display: none;">親</span>
+                    <span class="riichi-indicator" style="display: none;">リーチ</span>
+                </div>
+                <div class="player-score">25000</div>
+                <div class="player-actions">
+                    <button class="btn-riichi" data-player="1">立直</button>
+                    <button class="btn-tsumo" data-player="1">ツモ</button>
+                    <button class="btn-ron" data-player="1">ロン</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- プレイヤーエリア（上 - 180度回転） Player3は時計回りで上（対面） -->
+        <div id="player-area-3" class="player-area position-top">
+            <div class="player-content">
+                <div class="player-header">
+                    <span class="wind-indicator"></span>
+                    <span class="player-name">Player 3</span>
+                    <span class="player-rank"></span>
+                    <span class="dealer-indicator" style="display: none;">親</span>
+                    <span class="riichi-indicator" style="display: none;">リーチ</span>
+                </div>
+                <div class="player-score">25000</div>
+                <div class="player-actions">
+                    <button class="btn-riichi" data-player="2">立直</button>
+                    <button class="btn-tsumo" data-player="2">ツモ</button>
+                    <button class="btn-ron" data-player="2">ロン</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- プレイヤーエリア（左 - 90度回転） Player4は時計回りで左 -->
+        <div id="player-area-4" class="player-area position-left">
+            <div class="player-content">
+                <div class="player-header">
+                    <span class="wind-indicator"></span>
+                    <span class="player-name">Player 4</span>
+                    <span class="player-rank"></span>
+                    <span class="dealer-indicator" style="display: none;">親</span>
+                    <span class="riichi-indicator" style="display: none;">リーチ</span>
+                </div>
+                <div class="player-score">25000</div>
+                <div class="player-actions">
+                    <button class="btn-riichi" data-player="3">立直</button>
+                    <button class="btn-tsumo" data-player="3">ツモ</button>
+                    <button class="btn-ron" data-player="3">ロン</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 和了入力モーダル -->
+    <div id="agari-modal" class="modal" style="display: none;">
+        <div class="modal-content agari-modal-content">
+            <h2 id="agari-title">和了入力</h2>
+
+            <div class="agari-layout">
+                <!-- 左側：入力フォーム -->
+                <div class="agari-input-section">
+                    <!-- ロン時の放銃者選択 -->
+                    <div id="ron-target-select" style="display: none;">
+                        <p>放銃者を選択:</p>
+                        <div id="ron-target-buttons" class="target-buttons"></div>
+                    </div>
+
+                    <!-- 符選択 -->
+                    <div class="input-section">
+                        <label>符:</label>
+                        <div class="fu-buttons">
+                            <button class="fu-btn" data-fu="20">20</button>
+                            <button class="fu-btn" data-fu="25">25</button>
+                            <button class="fu-btn active" data-fu="30">30</button>
+                            <button class="fu-btn" data-fu="40">40</button>
+                            <button class="fu-btn" data-fu="50">50</button>
+                            <button class="fu-btn" data-fu="60">60</button>
+                            <button class="fu-btn" data-fu="70">70</button>
+                            <button class="fu-btn" data-fu="80">80</button>
+                            <button class="fu-btn" data-fu="90">90</button>
+                            <button class="fu-btn" data-fu="100">100</button>
+                            <button class="fu-btn" data-fu="110">110</button>
+                        </div>
+                    </div>
+
+                    <!-- 翻選択 -->
+                    <div class="input-section">
+                        <label>翻:</label>
+                        <div class="han-buttons">
+                            <button class="han-btn active" data-han="1">1</button>
+                            <button class="han-btn" data-han="2">2</button>
+                            <button class="han-btn" data-han="3">3</button>
+                            <button class="han-btn" data-han="4">4</button>
+                            <button class="han-btn" data-han="5">5</button>
+                            <button class="han-btn" data-han="6">6</button>
+                            <button class="han-btn" data-han="7">7</button>
+                            <button class="han-btn" data-han="8">8</button>
+                            <button class="han-btn" data-han="9">9</button>
+                            <button class="han-btn" data-han="10">10</button>
+                            <button class="han-btn" data-han="11">11</button>
+                            <button class="han-btn" data-han="12">12</button>
+                            <button class="han-btn yakuman-btn" data-han="13">役満</button>
+                            <button class="han-btn yakuman-btn" data-han="26">W役満</button>
+                            <button class="han-btn yakuman-btn" data-han="39">T役満</button>
+                        </div>
+                    </div>
+
+                    <!-- 点数プレビュー -->
+                    <div class="score-preview">
+                        <span id="preview-score">1000点</span>
+                        <span id="preview-detail"></span>
+                    </div>
+
+                    <div class="modal-buttons">
+                        <button id="btn-agari-cancel" class="secondary-btn">キャンセル</button>
+                        <button id="btn-yaku-list-from-agari" class="secondary-btn">役一覧</button>
+                        <button id="btn-calculator-from-agari" class="secondary-btn">計算ツール</button>
+                        <button id="btn-agari-confirm" class="primary-btn">確定</button>
+                    </div>
+                </div>
+
+                <!-- 右側：符計算早見表（折りたたみ式） -->
+                <div class="fu-reference-panel">
+                    <details class="fu-reference-details">
+                        <summary class="fu-reference-title">符計算早見表 ▼</summary>
+                        <div class="fu-reference-table">
+                            <div class="fu-row fu-row-red">
+                                <div class="fu-label">①基本符</div>
+                                <div class="fu-value">
+                                    <strong>20符</strong>
+                                    <span class="fu-desc">（どんな手でも必ずつく）</span>
+                                </div>
+                            </div>
+                            <div class="fu-row fu-row-orange">
+                                <div class="fu-label">②アガリ方</div>
+                                <div class="fu-value">
+                                    <div><strong>メンゼンロン</strong> +10符</div>
+                                    <div><strong>ツモ</strong> +2符</div>
+                                </div>
+                            </div>
+                            <div class="fu-row fu-row-yellow">
+                                <div class="fu-label">③面子の種類</div>
+                                <div class="fu-value fu-value-compact">
+                                    <div><strong>順子</strong>（123など）: 0符</div>
+                                    <div><strong>明刻</strong>（ポンした刻子）: 2符 / 1,9,字牌: 4符</div>
+                                    <div><strong>暗刻</strong>（自力で揃えた）: 4符 / 1,9,字牌: 8符</div>
+                                    <div><strong>明槓</strong>: 8符 / 1,9,字牌: 16符</div>
+                                    <div><strong>暗槓</strong>: 16符 / 1,9,字牌: 32符</div>
+                                </div>
+                            </div>
+                            <div class="fu-row fu-row-cyan">
+                                <div class="fu-label">④雀頭</div>
+                                <div class="fu-value">
+                                    <strong>役牌（三元牌・自風・場風）</strong> +2符
+                                </div>
+                            </div>
+                            <div class="fu-row fu-row-blue">
+                                <div class="fu-label">⑤待ちの形</div>
+                                <div class="fu-value fu-value-compact">
+                                    <div><strong>カンチャン待ち</strong>（○ _ ○）: +2符</div>
+                                    <div><strong>ペンチャン待ち</strong>（12の3待ち等）: +2符</div>
+                                    <div><strong>タンキ待ち</strong>（頭待ち）: +2符</div>
+                                </div>
+                            </div>
+                            <div class="fu-row fu-row-gray">
+                                <div class="fu-label">例外</div>
+                                <div class="fu-value">
+                                    <div><strong>ピンフ＋ツモ</strong>: 一律20符</div>
+                                    <div><strong>チートイツ</strong>: 一律25符</div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="fu-note">※合計符は10の位に切り上げ（例: 32符 → 40符）</p>
+                    </details>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 起家選択モーダル -->
+    <div id="dealer-select-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>起家選択</h2>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 1rem;">最初の親を選択してください</p>
+            <div id="dealer-select-buttons" class="target-buttons"></div>
+        </div>
+    </div>
+
+    <!-- 流局モーダル -->
+    <div id="ryukyoku-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>流局</h2>
+
+            <div class="ryukyoku-type">
+                <button id="btn-normal-ryukyoku" class="type-btn active">荒牌流局</button>
+                <button id="btn-途中流局" class="type-btn">途中流局</button>
+            </div>
+
+            <!-- テンパイ選択（荒牌流局時） -->
+            <div id="tenpai-select">
+                <p>テンパイ状態:</p>
+                <div id="tenpai-buttons" class="tenpai-buttons"></div>
+            </div>
+
+            <div class="modal-buttons">
+                <button id="btn-ryukyoku-cancel" class="secondary-btn">キャンセル</button>
+                <button id="btn-ryukyoku-confirm" class="primary-btn">確定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- メニューモーダル -->
+    <div id="menu-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>メニュー</h2>
+            <div class="menu-buttons">
+                <button id="btn-double-ron" class="menu-btn">ダブロン</button>
+                <button id="btn-yaku-list" class="menu-btn">役一覧</button>
+                <button id="btn-chombo" class="menu-btn">チョンボ</button>
+                <button id="btn-end-game" class="menu-btn">終了</button>
+            </div>
+            <div class="modal-buttons">
+                <button id="btn-menu-close" class="secondary-btn">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ダブロンモーダル -->
+    <div id="double-ron-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>ダブロン/トリプルロン</h2>
+
+            <div id="double-ron-step1" class="double-ron-step">
+                <p>放銃者を選択:</p>
+                <div id="double-ron-loser-buttons" class="target-buttons"></div>
+            </div>
+
+            <div id="double-ron-step2" class="double-ron-step" style="display: none;">
+                <p>和了者を選択（複数可）:</p>
+                <div id="double-ron-winner-buttons" class="target-buttons"></div>
+            </div>
+
+            <div id="double-ron-step3" class="double-ron-step" style="display: none;">
+                <p id="double-ron-current-winner">和了者の符翻を入力:</p>
+
+                <!-- 符計算早見表（折りたたみ式） -->
+                <div class="fu-reference-panel double-ron-fu-panel">
+                    <details class="fu-reference-details">
+                        <summary class="fu-reference-title">符計算早見表 ▼</summary>
+                        <div class="fu-reference-table">
+                            <div class="fu-row fu-row-red">
+                                <div class="fu-label">①基本符</div>
+                                <div class="fu-value">
+                                    <strong>20符</strong>
+                                    <span class="fu-desc">（どんな手でも必ずつく）</span>
+                                </div>
+                            </div>
+                            <div class="fu-row fu-row-orange">
+                                <div class="fu-label">②アガリ方</div>
+                                <div class="fu-value">
+                                    <div><strong>メンゼンロン</strong> +10符</div>
+                                    <div><strong>ツモ</strong> +2符</div>
+                                </div>
+                            </div>
+                            <div class="fu-row fu-row-yellow">
+                                <div class="fu-label">③面子</div>
+                                <div class="fu-value fu-value-compact">
+                                    <div><strong>明刻</strong>: 2符 / 1,9,字: 4符</div>
+                                    <div><strong>暗刻</strong>: 4符 / 1,9,字: 8符</div>
+                                </div>
+                            </div>
+                            <div class="fu-row fu-row-gray">
+                                <div class="fu-label">例外</div>
+                                <div class="fu-value">
+                                    <div><strong>ピンフ＋ツモ</strong>: 20符</div>
+                                    <div><strong>チートイツ</strong>: 25符</div>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="input-section">
+                    <label>符:</label>
+                    <div class="fu-buttons double-ron-fu-buttons">
+                        <button class="fu-btn" data-fu="20">20</button>
+                        <button class="fu-btn" data-fu="25">25</button>
+                        <button class="fu-btn active" data-fu="30">30</button>
+                        <button class="fu-btn" data-fu="40">40</button>
+                        <button class="fu-btn" data-fu="50">50</button>
+                        <button class="fu-btn" data-fu="60">60</button>
+                        <button class="fu-btn" data-fu="70">70</button>
+                        <button class="fu-btn" data-fu="80">80</button>
+                        <button class="fu-btn" data-fu="90">90</button>
+                        <button class="fu-btn" data-fu="100">100</button>
+                        <button class="fu-btn" data-fu="110">110</button>
+                    </div>
+                </div>
+                <div class="input-section">
+                    <label>翻:</label>
+                    <div class="han-buttons double-ron-han-buttons">
+                        <button class="han-btn active" data-han="1">1</button>
+                        <button class="han-btn" data-han="2">2</button>
+                        <button class="han-btn" data-han="3">3</button>
+                        <button class="han-btn" data-han="4">4</button>
+                        <button class="han-btn" data-han="5">5</button>
+                        <button class="han-btn" data-han="6">6</button>
+                        <button class="han-btn" data-han="7">7</button>
+                        <button class="han-btn" data-han="8">8</button>
+                        <button class="han-btn" data-han="9">9</button>
+                        <button class="han-btn" data-han="10">10</button>
+                        <button class="han-btn" data-han="11">11</button>
+                        <button class="han-btn" data-han="12">12</button>
+                        <button class="han-btn yakuman-btn" data-han="13">役満</button>
+                        <button class="han-btn yakuman-btn" data-han="26">W役満</button>
+                    </div>
+                </div>
+                <div class="double-ron-actions">
+                    <button id="btn-double-ron-yaku-list" class="secondary-btn">役一覧</button>
+                    <button id="btn-calculator-from-double-ron" class="secondary-btn">計算ツール</button>
+                    <button id="btn-double-ron-next-winner" class="primary-btn">次の和了者へ</button>
+                </div>
+            </div>
+
+            <div class="modal-buttons" style="margin-top: 1rem;">
+                <button id="btn-double-ron-cancel" class="secondary-btn">キャンセル</button>
+                <button id="btn-double-ron-confirm" class="primary-btn" style="display: none;">確定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 終了確認モーダル -->
+    <div id="confirm-end-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>ゲーム終了</h2>
+            <p style="text-align: center; margin: 1rem 0;">現在のゲームを終了しますか？</p>
+            <div class="modal-buttons">
+                <button id="btn-confirm-end-cancel" class="secondary-btn">キャンセル</button>
+                <button id="btn-confirm-end-ok" class="primary-btn">終了する</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- チョンボモーダル -->
+    <div id="chombo-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>チョンボ</h2>
+            <p>罰符対象者を選択:</p>
+            <div id="chombo-buttons" class="target-buttons"></div>
+            <div class="modal-buttons">
+                <button id="btn-chombo-cancel" class="secondary-btn">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 役一覧モーダル -->
+    <div id="yaku-list-modal" class="modal" style="display: none;">
+        <div class="modal-content yaku-list-content">
+            <h2>役一覧</h2>
+            <div class="yaku-list-scroll">
+                <div class="yaku-section">
+                    <h3 class="yaku-section-title">1翻</h3>
+                    <div class="yaku-grid">
+                        <div class="yaku-item">
+                            <span class="yaku-name">リーチ</span>
+                            <span class="yaku-desc">門前テンパイ時に1000点供託で宣言</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">一発</span>
+                            <span class="yaku-desc">リーチ後、1巡以内に和了</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">ツモ</span>
+                            <span class="yaku-desc">門前でツモ和了</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">タンヤオ</span>
+                            <span class="yaku-desc">2〜8の数牌のみで構成</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">平和（ピンフ）</span>
+                            <span class="yaku-desc">順子のみ・役なし雀頭・両面待ち</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">一盃口</span>
+                            <span class="yaku-desc">同じ順子が2組（門前のみ）</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">役牌</span>
+                            <span class="yaku-desc">白發中・自風・場風の刻子</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">嶺上開花</span>
+                            <span class="yaku-desc">カンの嶺上牌で和了</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">槍槓</span>
+                            <span class="yaku-desc">他家の加槓牌でロン</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">海底/河底</span>
+                            <span class="yaku-desc">最後の牌で和了</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="yaku-section">
+                    <h3 class="yaku-section-title">2翻</h3>
+                    <div class="yaku-grid">
+                        <div class="yaku-item">
+                            <span class="yaku-name">ダブルリーチ</span>
+                            <span class="yaku-desc">1巡目にリーチ</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">七対子</span>
+                            <span class="yaku-desc">対子7組（25符固定）</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">三色同順</span>
+                            <span class="yaku-desc">萬筒索で同じ数の順子</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">一気通貫</span>
+                            <span class="yaku-desc">同色で123・456・789</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">対々和</span>
+                            <span class="yaku-desc">刻子4組+雀頭</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">三暗刻</span>
+                            <span class="yaku-desc">暗刻3組</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">三槓子</span>
+                            <span class="yaku-desc">槓子3組</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">チャンタ</span>
+                            <span class="yaku-desc">全面子雀頭に1,9,字牌</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">混老頭</span>
+                            <span class="yaku-desc">1,9,字牌のみで構成</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">小三元</span>
+                            <span class="yaku-desc">白發中の2刻子+1雀頭</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="yaku-section">
+                    <h3 class="yaku-section-title">3翻</h3>
+                    <div class="yaku-grid">
+                        <div class="yaku-item">
+                            <span class="yaku-name">二盃口</span>
+                            <span class="yaku-desc">一盃口が2組（門前のみ）</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">ジュンチャン</span>
+                            <span class="yaku-desc">全面子雀頭に1,9牌（字牌なし）</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">混一色</span>
+                            <span class="yaku-desc">1色の数牌+字牌のみ</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="yaku-section">
+                    <h3 class="yaku-section-title">6翻</h3>
+                    <div class="yaku-grid">
+                        <div class="yaku-item">
+                            <span class="yaku-name">清一色</span>
+                            <span class="yaku-desc">1色の数牌のみ</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="yaku-section">
+                    <h3 class="yaku-section-title yaku-section-yakuman">役満</h3>
+                    <div class="yaku-grid">
+                        <div class="yaku-item">
+                            <span class="yaku-name">国士無双</span>
+                            <span class="yaku-desc">1,9,字牌13種+任意1枚</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">四暗刻</span>
+                            <span class="yaku-desc">暗刻4組</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">大三元</span>
+                            <span class="yaku-desc">白發中の刻子3組</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">小四喜</span>
+                            <span class="yaku-desc">風牌3刻子+1雀頭</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">大四喜</span>
+                            <span class="yaku-desc">風牌4刻子</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">字一色</span>
+                            <span class="yaku-desc">字牌のみで構成</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">緑一色</span>
+                            <span class="yaku-desc">索子234・6・8と發のみ</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">清老頭</span>
+                            <span class="yaku-desc">1,9牌のみで構成</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">九蓮宝燈</span>
+                            <span class="yaku-desc">1色で1112345678999+1</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">四槓子</span>
+                            <span class="yaku-desc">槓子4組</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">天和</span>
+                            <span class="yaku-desc">親の配牌で和了</span>
+                        </div>
+                        <div class="yaku-item">
+                            <span class="yaku-name">地和</span>
+                            <span class="yaku-desc">子の1巡目ツモで和了</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button id="btn-yaku-list-close" class="secondary-btn">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 結果画面 -->
+    <div id="result-screen" class="screen" style="display: none;">
+        <div class="result-container">
+            <h1>ゲーム終了</h1>
+            <div id="result-list"></div>
+            <button id="btn-back-to-setup" class="primary-btn">タイトルへ戻る</button>
+        </div>
+    </div>
+    <!-- 点数計算ツールモーダル (直接埋め込み) -->
+    <div id="calculator-modal" class="modal" style="display: none;">
+        <div class="modal-content calculator-modal-content">
+            <div class="calculator-header">
+                <h2>点数計算ツール</h2>
+                <button id="btn-calculator-close" class="close-btn">✕</button>
+            </div>
+
+            <div class="calc-container">
+                <!-- 手牌入力エリア -->
+                <div class="calc-section">
+                    <div class="calc-section-header">
+                        <span>手牌を入力</span>
+                        <span id="calc-tile-count">0/14枚</span>
+                        <button id="calc-clear-hand" class="calc-btn-small">クリア</button>
+                    </div>
+                    <div id="calc-hand-display" class="calc-hand-display">
+                        <div class="calc-hand-tiles" id="calc-hand-tiles"></div>
+                        <div class="calc-agari-tile" id="calc-agari-tile"></div>
+                    </div>
+                </div>
+
+                <!-- 牌選択エリア -->
+                <div class="calc-section calc-tile-section">
+                    <div class="calc-tile-selector" id="calc-tile-selector">
+                        <div class="calc-tile-row">
+                            <span class="calc-tile-label">萬</span>
+                            <div class="calc-tiles-group" data-suit="m"></div>
+                        </div>
+                        <div class="calc-tile-row">
+                            <span class="calc-tile-label">筒</span>
+                            <div class="calc-tiles-group" data-suit="p"></div>
+                        </div>
+                        <div class="calc-tile-row">
+                            <span class="calc-tile-label">索</span>
+                            <div class="calc-tiles-group" data-suit="s"></div>
+                        </div>
+                        <div class="calc-tile-row">
+                            <span class="calc-tile-label">字</span>
+                            <div class="calc-tiles-group" data-suit="z"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 副露 -->
+                <div class="calc-section">
+                    <div class="calc-section-header">副露（鳴き）</div>
+                    <div id="calc-melds-display" class="calc-melds-display"></div>
+                    <div class="calc-meld-buttons">
+                        <button id="calc-add-pon" class="calc-option-btn">ポン</button>
+                        <button id="calc-add-chi" class="calc-option-btn">チー</button>
+                        <button id="calc-add-kan" class="calc-option-btn">カン</button>
+                    </div>
+                </div>
+
+                <!-- 条件設定 -->
+                <div class="calc-section calc-options-section">
+                    <div class="calc-options-row">
+                        <div class="calc-option-group-inline">
+                            <button id="calc-agari-tsumo" class="calc-option-btn active">ツモ</button>
+                            <button id="calc-agari-ron" class="calc-option-btn">ロン</button>
+                        </div>
+                        <div class="calc-option-group-inline">
+                            <button id="calc-bakaze-1" class="calc-option-btn small active">東場</button>
+                            <button id="calc-bakaze-2" class="calc-option-btn small">南場</button>
+                        </div>
+                        <div class="calc-option-group-inline">
+                            <button id="calc-jikaze-1" class="calc-option-btn small active">東家</button>
+                            <button id="calc-jikaze-2" class="calc-option-btn small">南家</button>
+                            <button id="calc-jikaze-3" class="calc-option-btn small">西家</button>
+                            <button id="calc-jikaze-4" class="calc-option-btn small">北家</button>
+                        </div>
+                    </div>
+                    <div class="calc-options-row">
+                        <span class="calc-option-label">ドラ</span>
+                        <div class="calc-counter">
+                            <button id="calc-dora-minus" class="calc-counter-btn">−</button>
+                            <span id="calc-dora-count">0</span>
+                            <button id="calc-dora-plus" class="calc-counter-btn">+</button>
+                        </div>
+                    </div>
+                    <div class="calc-options-row calc-toggle-row">
+                        <button id="calc-riichi" class="calc-option-btn toggle-btn">リーチ</button>
+                        <button id="calc-ippatsu" class="calc-option-btn toggle-btn">一発</button>
+                        <button id="calc-double-riichi" class="calc-option-btn toggle-btn">ダブリー</button>
+                        <button id="calc-rinshan" class="calc-option-btn toggle-btn">嶺上</button>
+                        <button id="calc-chankan" class="calc-option-btn toggle-btn">槍槓</button>
+                        <button id="calc-haitei" class="calc-option-btn toggle-btn">海底/河底</button>
+                    </div>
+                </div>
+
+                <!-- 計算ボタン -->
+                <button id="calc-calculate-btn" class="primary-btn">点数を計算</button>
+
+                <!-- 結果表示エリア -->
+                <div id="calc-result-section" class="calc-result-section" style="display: none;">
+                    <div class="calc-result-card">
+                        <div class="calc-result-main">
+                            <span class="calc-result-label" id="calc-result-label">子・ツモ</span>
+                            <span class="calc-result-score" id="calc-result-score">--</span>
+                        </div>
+                        <div class="calc-result-payment" id="calc-result-payment"></div>
+                    </div>
+                    <div class="calc-result-detail">
+                        <div class="calc-breakdown-fu" id="calc-breakdown-fu"></div>
+                        <div class="calc-breakdown-han" id="calc-breakdown-han"></div>
+                        <div class="calc-breakdown-yaku" id="calc-breakdown-yaku"></div>
+                    </div>
+                    <button id="calc-send-result" class="calc-accent-btn">結果を管理ツールに反映</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 立直音声 -->
+    <audio id="riichi-sound" preload="auto">
+        <source src="riichi.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="tiles.js"></script>
+    <script src="yaku.js"></script>
+    <script src="fu-calculator.js"></script>
+    <script src="score-calculator.js"></script>
+    <script src="app.js"></script>
+    <script src="calculator.js"></script>
+</body>
+
+</html>
