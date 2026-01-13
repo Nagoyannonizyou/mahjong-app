@@ -302,6 +302,8 @@ body {
     gap: 0.5rem;
     margin-bottom: 0.5rem;
     flex-wrap: wrap;
+    min-height: 1.6rem;
+    /* リーチバッジ表示時もサイズ変動しないよう最小高さを設定 */
 }
 
 .player-name {
@@ -608,11 +610,13 @@ body {
 }
 
 .agari-input-section {
-    flex: 1 1 clamp(280px, 100%, 450px);
-    /* 最小幅を維持しつつ流動的に */
+    flex: 1 1 100%;
+    /* 全幅を使いつつ中央配置 */
     max-width: 100%;
     overflow: hidden;
     box-sizing: border-box;
+    margin: 0 auto;
+    /* 中央配置 */
 }
 
 .fu-reference-section {
