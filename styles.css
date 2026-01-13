@@ -49,6 +49,25 @@ body {
     line-height: 1.5;
 }
 
+/* 横向き時に縦画面推奨メッセージを表示 */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+    body::before {
+        content: '縦向きでご利用ください';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: var(--bg-dark);
+        color: var(--text-primary);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.5rem;
+        z-index: 9999;
+    }
+}
+
 /* Screens */
 .screen {
     width: 100%;
@@ -238,11 +257,18 @@ body {
 }
 
 .central-buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: row;
     gap: 0.2rem;
     margin-top: 0.2rem;
     width: 100%;
+}
+
+/* 中央HUDの横長ボタン */
+.central-wide-btn {
+    flex: 1;
+    padding: 0.4rem 0.5rem;
+    font-size: clamp(0.6rem, 1.5vmin + 0.3rem, 0.8rem);
 }
 
 .action-btn {

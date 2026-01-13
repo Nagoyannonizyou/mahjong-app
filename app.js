@@ -382,8 +382,6 @@ class UIController {
     document.getElementById('btn-resume').addEventListener('click', () => this.resumeGame());
 
     // Game Screen
-    document.getElementById('btn-ryukyoku').addEventListener('click', () => this.showRyukyokuModal());
-    document.getElementById('btn-double-ron-hud').addEventListener('click', () => this.showDoubleRonModal());
     document.getElementById('btn-undo').addEventListener('click', () => this.undo());
     document.getElementById('btn-menu').addEventListener('click', () => this.showMenuModal());
 
@@ -413,6 +411,10 @@ class UIController {
     document.getElementById('btn-ryukyoku-confirm').addEventListener('click', () => this.confirmRyukyoku());
 
     // Menu Modal
+    document.getElementById('btn-ryukyoku-menu').addEventListener('click', () => {
+      this.hideModal('menu-modal');
+      this.showRyukyokuModal();
+    });
     document.getElementById('btn-double-ron').addEventListener('click', () => this.showDoubleRonModal());
     document.getElementById('btn-yaku-list').addEventListener('click', () => this.showModal('yaku-list-modal'));
     document.getElementById('btn-chombo').addEventListener('click', () => this.showChomboModal());
