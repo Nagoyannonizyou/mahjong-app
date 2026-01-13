@@ -22,10 +22,26 @@
                 <button id="btn-tonpuu" class="round-type-btn">東風（トンプウ）</button>
             </div>
             <div class="player-names">
-                <input type="text" id="player1-name" placeholder="プレイヤー1（下）" value="Player 1" data-default="Player 1">
-                <input type="text" id="player2-name" placeholder="プレイヤー2（右）" value="Player 2" data-default="Player 2">
-                <input type="text" id="player3-name" placeholder="プレイヤー3（上）" value="Player 3" data-default="Player 3">
-                <input type="text" id="player4-name" placeholder="プレイヤー4（左）" value="Player 4" data-default="Player 4">
+                <div class="player-name-row">
+                    <span class="wind-badge">東</span>
+                    <input type="text" id="player1-name" placeholder="プレイヤー1（下）" value="Player 1"
+                        data-default="Player 1">
+                </div>
+                <div class="player-name-row">
+                    <span class="wind-badge">南</span>
+                    <input type="text" id="player2-name" placeholder="プレイヤー2（右）" value="Player 2"
+                        data-default="Player 2">
+                </div>
+                <div class="player-name-row">
+                    <span class="wind-badge">西</span>
+                    <input type="text" id="player3-name" placeholder="プレイヤー3（上）" value="Player 3"
+                        data-default="Player 3">
+                </div>
+                <div class="player-name-row">
+                    <span class="wind-badge">北</span>
+                    <input type="text" id="player4-name" placeholder="プレイヤー4（左）" value="Player 4"
+                        data-default="Player 4">
+                </div>
             </div>
             <button id="btn-start" class="primary-btn">ゲーム開始</button>
             <button id="btn-resume" class="secondary-btn" style="display: none;">前回の続きから</button>
@@ -58,8 +74,8 @@
                     <span class="wind-indicator"></span>
                     <span class="player-name">Player 1</span>
                     <span class="player-rank"></span>
-                    <span class="dealer-indicator" style="display: none;">親</span>
-                    <span class="riichi-indicator" style="display: none;">リーチ</span>
+                    <span class="dealer-indicator">親</span>
+                    <span class="riichi-indicator">リーチ</span>
                 </div>
                 <div class="player-score">25000</div>
                 <div class="player-actions">
@@ -77,8 +93,8 @@
                     <span class="wind-indicator"></span>
                     <span class="player-name">Player 2</span>
                     <span class="player-rank"></span>
-                    <span class="dealer-indicator" style="display: none;">親</span>
-                    <span class="riichi-indicator" style="display: none;">リーチ</span>
+                    <span class="dealer-indicator">親</span>
+                    <span class="riichi-indicator">リーチ</span>
                 </div>
                 <div class="player-score">25000</div>
                 <div class="player-actions">
@@ -96,8 +112,8 @@
                     <span class="wind-indicator"></span>
                     <span class="player-name">Player 3</span>
                     <span class="player-rank"></span>
-                    <span class="dealer-indicator" style="display: none;">親</span>
-                    <span class="riichi-indicator" style="display: none;">リーチ</span>
+                    <span class="dealer-indicator">親</span>
+                    <span class="riichi-indicator">リーチ</span>
                 </div>
                 <div class="player-score">25000</div>
                 <div class="player-actions">
@@ -115,8 +131,8 @@
                     <span class="wind-indicator"></span>
                     <span class="player-name">Player 4</span>
                     <span class="player-rank"></span>
-                    <span class="dealer-indicator" style="display: none;">親</span>
-                    <span class="riichi-indicator" style="display: none;">リーチ</span>
+                    <span class="dealer-indicator">親</span>
+                    <span class="riichi-indicator">リーチ</span>
                 </div>
                 <div class="player-score">25000</div>
                 <div class="player-actions">
@@ -142,43 +158,23 @@
                         <div id="ron-target-buttons" class="target-buttons"></div>
                     </div>
 
-                    <!-- 符・翻選択（ドロップダウン方式） -->
-                    <div class="fu-han-selectors">
-                        <div class="selector-group">
-                            <label for="fu-select">符:</label>
-                            <select id="fu-select" class="fu-han-dropdown">
-                                <option value="20">20符</option>
-                                <option value="25">25符</option>
-                                <option value="30" selected>30符</option>
-                                <option value="40">40符</option>
-                                <option value="50">50符</option>
-                                <option value="60">60符</option>
-                                <option value="70">70符</option>
-                                <option value="80">80符</option>
-                                <option value="90">90符</option>
-                                <option value="100">100符</option>
-                                <option value="110">110符</option>
-                            </select>
+                    <!-- 符・翻選択（ステッパー方式） -->
+                    <div class="fu-han-steppers">
+                        <div class="stepper-group">
+                            <span class="stepper-label">符</span>
+                            <div class="stepper-control">
+                                <button id="fu-minus" class="stepper-btn">−</button>
+                                <span id="fu-value" class="stepper-value">30</span>
+                                <button id="fu-plus" class="stepper-btn">+</button>
+                            </div>
                         </div>
-                        <div class="selector-group">
-                            <label for="han-select">翻:</label>
-                            <select id="han-select" class="fu-han-dropdown">
-                                <option value="1" selected>1翻</option>
-                                <option value="2">2翻</option>
-                                <option value="3">3翻</option>
-                                <option value="4">4翻</option>
-                                <option value="5">5翻 (満貫)</option>
-                                <option value="6">6翻 (跳満)</option>
-                                <option value="7">7翻 (跳満)</option>
-                                <option value="8">8翻 (倍満)</option>
-                                <option value="9">9翻 (倍満)</option>
-                                <option value="10">10翻 (倍満)</option>
-                                <option value="11">11翻 (三倍満)</option>
-                                <option value="12">12翻 (三倍満)</option>
-                                <option value="13">役満</option>
-                                <option value="26">ダブル役満</option>
-                                <option value="39">トリプル役満</option>
-                            </select>
+                        <div class="stepper-group">
+                            <span class="stepper-label">翻</span>
+                            <div class="stepper-control">
+                                <button id="han-minus" class="stepper-btn">−</button>
+                                <span id="han-value" class="stepper-value">1</span>
+                                <button id="han-plus" class="stepper-btn">+</button>
+                            </div>
                         </div>
                     </div>
 
@@ -357,52 +353,30 @@
                     </details>
                 </div>
 
-                <!-- 符・翻選択（ダブロン用ドロップダウン） -->
-                <div class="fu-han-selectors">
-                    <div class="selector-group">
-                        <label for="double-ron-fu-select">符:</label>
-                        <select id="double-ron-fu-select" class="fu-han-dropdown">
-                            <option value="20">20符</option>
-                            <option value="25">25符</option>
-                            <option value="30" selected>30符</option>
-                            <option value="40">40符</option>
-                            <option value="50">50符</option>
-                            <option value="60">60符</option>
-                            <option value="70">70符</option>
-                            <option value="80">80符</option>
-                            <option value="90">90符</option>
-                            <option value="100">100符</option>
-                            <option value="110">110符</option>
-                        </select>
+                <!-- 符・翻選択（ダブロン用ステッパー） -->
+                <div class="fu-han-steppers">
+                    <div class="stepper-group">
+                        <span class="stepper-label">符</span>
+                        <div class="stepper-control">
+                            <button id="double-ron-fu-minus" class="stepper-btn">−</button>
+                            <span id="double-ron-fu-value" class="stepper-value">30</span>
+                            <button id="double-ron-fu-plus" class="stepper-btn">+</button>
+                        </div>
                     </div>
-                    <div class="selector-group">
-                        <label for="double-ron-han-select">翻:</label>
-                        <select id="double-ron-han-select" class="fu-han-dropdown">
-                            <option value="1" selected>1翻</option>
-                            <option value="2">2翻</option>
-                            <option value="3">3翻</option>
-                            <option value="4">4翻</option>
-                            <option value="5">5翻 (満貫)</option>
-                            <option value="6">6翻 (跳満)</option>
-                            <option value="7">7翻 (跳満)</option>
-                            <option value="8">8翻 (倍満)</option>
-                            <option value="9">9翻 (倍満)</option>
-                            <option value="10">10翻 (倍満)</option>
-                            <option value="11">11翻 (三倍満)</option>
-                            <option value="12">12翻 (三倍満)</option>
-                            <option value="13">役満</option>
-                            <option value="26">ダブル役満</option>
-                            <option value="39">トリプル役満</option>
-                        </select>
+                    <div class="stepper-group">
+                        <span class="stepper-label">翻</span>
+                        <div class="stepper-control">
+                            <button id="double-ron-han-minus" class="stepper-btn">−</button>
+                            <span id="double-ron-han-value" class="stepper-value">1</span>
+                            <button id="double-ron-han-plus" class="stepper-btn">+</button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- 点数表示エリア -->
-                <div id="double-ron-score-display" class="score-display" style="margin: 0.75rem 0;">
-                    <div class="score-result">
-                        <span id="double-ron-score-value">1,000点</span>
-                    </div>
-                    <div id="double-ron-score-detail" class="score-detail"></div>
+                <!-- 点数プレビュー（通常和了と同じデザイン） -->
+                <div class="score-preview">
+                    <span id="double-ron-score-value">1000点</span>
+                    <span id="double-ron-score-detail"></span>
                 </div>
 
                 <div class="double-ron-actions">

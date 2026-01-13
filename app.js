@@ -398,13 +398,11 @@ class UIController {
       btn.addEventListener('click', (e) => this.showAgariModal(parseInt(e.target.dataset.player), 'ron'));
     });
 
-    // Agari Modal - ドロップダウン方式
-    document.getElementById('fu-select').addEventListener('change', (e) => {
-      this.selectFu(parseInt(e.target.value));
-    });
-    document.getElementById('han-select').addEventListener('change', (e) => {
-      this.selectHan(parseInt(e.target.value));
-    });
+    // Agari Modal - ステッパー方式
+    document.getElementById('fu-minus').addEventListener('click', () => this.stepFu(-1));
+    document.getElementById('fu-plus').addEventListener('click', () => this.stepFu(1));
+    document.getElementById('han-minus').addEventListener('click', () => this.stepHan(-1));
+    document.getElementById('han-plus').addEventListener('click', () => this.stepHan(1));
     document.getElementById('btn-agari-cancel').addEventListener('click', () => this.hideModal('agari-modal'));
     document.getElementById('btn-agari-confirm').addEventListener('click', () => this.confirmAgari());
 
@@ -421,16 +419,14 @@ class UIController {
     document.getElementById('btn-end-game').addEventListener('click', () => this.showConfirmEndModal());
     document.getElementById('btn-menu-close').addEventListener('click', () => this.hideModal('menu-modal'));
 
-    // Double Ron Modal - ドロップダウン方式
+    // Double Ron Modal - ステッパー方式
     document.getElementById('btn-double-ron-cancel').addEventListener('click', () => this.hideModal('double-ron-modal'));
     document.getElementById('btn-double-ron-confirm').addEventListener('click', () => this.confirmDoubleRon());
     document.getElementById('btn-double-ron-next-winner').addEventListener('click', () => this.nextDoubleRonWinner());
-    document.getElementById('double-ron-fu-select').addEventListener('change', (e) => {
-      this.selectDoubleRonFu(parseInt(e.target.value));
-    });
-    document.getElementById('double-ron-han-select').addEventListener('change', (e) => {
-      this.selectDoubleRonHan(parseInt(e.target.value));
-    });
+    document.getElementById('double-ron-fu-minus').addEventListener('click', () => this.stepDoubleRonFu(-1));
+    document.getElementById('double-ron-fu-plus').addEventListener('click', () => this.stepDoubleRonFu(1));
+    document.getElementById('double-ron-han-minus').addEventListener('click', () => this.stepDoubleRonHan(-1));
+    document.getElementById('double-ron-han-plus').addEventListener('click', () => this.stepDoubleRonHan(1));
 
     // Yaku List Modal
     document.getElementById('btn-yaku-list-close').addEventListener('click', () => this.hideModal('yaku-list-modal'));
@@ -486,7 +482,11 @@ class UIController {
   selectMode(mode) {
     document.getElementById('btn-4player').classList.toggle('active', mode === '4player');
     document.getElementById('btn-3player').classList.toggle('active', mode === '3player');
-    document.getElementById('player4-name').style.display = mode === '4player' ? 'block' : 'none';
+    // 3人打ち時はPlayer 4の入力行全体を非表示
+    const player4Row = document.getElementById('player4-name').closest('.player-name-row');
+    if (player4Row) {
+      player4Row.style.display = mode === '4player' ? 'flex' : 'none';
+    }
   }
 
   selectRoundType(type) {
@@ -505,8 +505,13 @@ class UIController {
     ];
     this.gameState.initialize(mode, roundType, names);
 
-    // Show dealer selection modal
-    this.showDealerSelectModal();
+    // 風は入力画面で指定済み（東南西北順）のため、Player 1が親
+    this.gameState.dealerIndex = 0;
+    this.gameState.startingDealerIndex = 0;
+
+    // 直接ゲーム画面へ
+    document.getElementById('setup-screen').style.display = 'none';
+    this.showGameScreenDirectly();
   }
 
   resumeGame() {
@@ -588,13 +593,13 @@ class UIController {
       area.querySelector('.player-name').textContent = player.name;
       area.querySelector('.player-score').textContent = player.score.toLocaleString();
 
-      // Dealer indicator
+      // Dealer indicator - visibilityクラスで切り替え（レイアウト変動防止）
       const dealerInd = area.querySelector('.dealer-indicator');
-      dealerInd.style.display = gs.isDealer(i) ? 'inline' : 'none';
+      dealerInd.classList.toggle('visible', gs.isDealer(i));
 
-      // Riichi indicator
+      // Riichi indicator - visibilityクラスで切り替え（レイアウト変動防止）
       const riichiInd = area.querySelector('.riichi-indicator');
-      riichiInd.style.display = player.isRiichi ? 'inline' : 'none';
+      riichiInd.classList.toggle('visible', player.isRiichi);
       area.classList.toggle('riichi', player.isRiichi);
       area.classList.toggle('dealer', gs.isDealer(i));
 
@@ -602,12 +607,14 @@ class UIController {
       const riichiBtn = area.querySelector('.btn-riichi');
       riichiBtn.classList.toggle('active', player.isRiichi);
 
-      // Rank
+      // Rank - visibleクラスで表示切り替え（レイアウト変動防止）
       const scores = gs.players.map(p => p.score);
       const sortedScores = [...scores].sort((a, b) => b - a);
       const rank = sortedScores.indexOf(player.score) + 1;
       const topDiff = player.score - sortedScores[0];
-      area.querySelector('.player-rank').textContent = rank === 1 ? '' : `${rank}位 (${topDiff >= 0 ? '+' : ''}${topDiff})`;
+      const rankEl = area.querySelector('.player-rank');
+      rankEl.textContent = rank === 1 ? '' : `${rank}位 (${topDiff >= 0 ? '+' : ''}${topDiff})`;
+      rankEl.classList.toggle('visible', rank !== 1);
     }
 
     // Save state
@@ -676,12 +683,41 @@ class UIController {
       ronTargetDiv.style.display = 'none';
     }
 
-    // Reset selections - ドロップダウン方式
-    document.getElementById('fu-select').value = '30';
-    document.getElementById('han-select').value = '1';
+    // Reset selections - ステッパー方式
+    document.getElementById('fu-value').textContent = '30';
+    document.getElementById('han-value').textContent = '1';
 
     this.updateScorePreview();
     document.getElementById('agari-modal').style.display = 'flex';
+  }
+
+  // 符の有効値配列
+  static FU_VALUES = [20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 110];
+  // 翻の有効値配列（リミットハンドごとにグループ化: 1-4は個別、5以上はリミットの代表値のみ）
+  static HAN_VALUES = [1, 2, 3, 4, 5, 6, 8, 11, 13, 26, 39];
+  // リミットハンドの範囲定義
+  static HAN_DISPLAY = {
+    1: '1翻', 2: '2翻', 3: '3翻', 4: '4翻',
+    5: '満貫(5翻)', 6: '跳満(6~7翻)', 8: '倍満(8~10翻)',
+    11: '三倍満(11~12翻)', 13: '役満(13翻)', 26: 'W役満', 39: '3役満'
+  };
+
+  stepFu(direction) {
+    const currentFu = this.currentAgari.fu;
+    const idx = UIController.FU_VALUES.indexOf(currentFu);
+    const newIdx = Math.max(0, Math.min(UIController.FU_VALUES.length - 1, idx + direction));
+    const newFu = UIController.FU_VALUES[newIdx];
+    this.selectFu(newFu);
+  }
+
+  stepHan(direction) {
+    const currentHan = this.currentAgari.han;
+    const idx = UIController.HAN_VALUES.indexOf(currentHan);
+    // 見つからない場合は4翻から開始
+    const safeIdx = idx === -1 ? 3 : idx;
+    const newIdx = Math.max(0, Math.min(UIController.HAN_VALUES.length - 1, safeIdx + direction));
+    const newHan = UIController.HAN_VALUES[newIdx];
+    this.selectHan(newHan);
   }
 
   selectRonTarget(index) {
@@ -697,21 +733,16 @@ class UIController {
 
   selectFu(fu) {
     this.currentAgari.fu = fu;
-    // ドロップダウンの値も同期
-    const fuSelect = document.getElementById('fu-select');
-    if (fuSelect && fuSelect.value !== String(fu)) {
-      fuSelect.value = fu;
-    }
+    // ステッパー表示を更新
+    document.getElementById('fu-value').textContent = fu;
     this.updateScorePreview();
   }
 
   selectHan(han) {
     this.currentAgari.han = han;
-    // ドロップダウンの値も同期
-    const hanSelect = document.getElementById('han-select');
-    if (hanSelect && hanSelect.value !== String(han)) {
-      hanSelect.value = han;
-    }
+    // HAN_DISPLAYから表示テキストを取得（範囲表示対応）
+    const displayText = UIController.HAN_DISPLAY[han] || String(han);
+    document.getElementById('han-value').textContent = displayText;
     this.updateScorePreview();
   }
 
@@ -858,11 +889,10 @@ class UIController {
     if (idx === -1) {
       this.currentRyukyoku.tenpai.push(playerIndex);
       btn.classList.add('tenpai');
-      btn.classList.remove('noten');
     } else {
       this.currentRyukyoku.tenpai.splice(idx, 1);
       btn.classList.remove('tenpai');
-      btn.classList.add('noten');
+      // notenクラスを追加しない（グレーに戻す）
     }
   }
 
@@ -1140,9 +1170,9 @@ class UIController {
     document.getElementById('double-ron-current-winner').textContent =
       `${winnerName} の符・翻を入力 (${state.currentWinnerIdx + 1}/${state.winners.length}人目):`;
 
-    // リセット - ドロップダウン方式
-    document.getElementById('double-ron-fu-select').value = '30';
-    document.getElementById('double-ron-han-select').value = '1';
+    // リセット - ステッパー方式
+    document.getElementById('double-ron-fu-value').textContent = '30';
+    document.getElementById('double-ron-han-value').textContent = '1';
     state.currentFu = 30;
     state.currentHan = 1;
 
@@ -1159,23 +1189,35 @@ class UIController {
     this.updateDoubleRonScorePreview();
   }
 
+  stepDoubleRonFu(direction) {
+    const currentFu = this.doubleRonState.currentFu;
+    const idx = UIController.FU_VALUES.indexOf(currentFu);
+    const newIdx = Math.max(0, Math.min(UIController.FU_VALUES.length - 1, idx + direction));
+    const newFu = UIController.FU_VALUES[newIdx];
+    this.selectDoubleRonFu(newFu);
+  }
+
+  stepDoubleRonHan(direction) {
+    const currentHan = this.doubleRonState.currentHan;
+    const idx = UIController.HAN_VALUES.indexOf(currentHan);
+    const safeIdx = idx === -1 ? 3 : idx;
+    const newIdx = Math.max(0, Math.min(UIController.HAN_VALUES.length - 1, safeIdx + direction));
+    const newHan = UIController.HAN_VALUES[newIdx];
+    this.selectDoubleRonHan(newHan);
+  }
+
   selectDoubleRonFu(fu) {
     this.doubleRonState.currentFu = fu;
-    // ドロップダウンの値も同期
-    const fuSelect = document.getElementById('double-ron-fu-select');
-    if (fuSelect && fuSelect.value !== String(fu)) {
-      fuSelect.value = fu;
-    }
+    // ステッパー表示を更新
+    document.getElementById('double-ron-fu-value').textContent = fu;
     this.updateDoubleRonScorePreview();
   }
 
   selectDoubleRonHan(han) {
     this.doubleRonState.currentHan = han;
-    // ドロップダウンの値も同期
-    const hanSelect = document.getElementById('double-ron-han-select');
-    if (hanSelect && hanSelect.value !== String(han)) {
-      hanSelect.value = han;
-    }
+    // HAN_DISPLAYから表示テキストを取得（範囲表示対応）
+    const displayText = UIController.HAN_DISPLAY[han] || String(han);
+    document.getElementById('double-ron-han-value').textContent = displayText;
     this.updateDoubleRonScorePreview();
   }
 
