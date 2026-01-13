@@ -1158,6 +1158,9 @@ class UIController {
       document.getElementById('btn-double-ron-next-winner').style.display = 'inline-block';
       document.getElementById('btn-double-ron-confirm').style.display = 'none';
     }
+
+    // 初期点数を表示
+    this.updateDoubleRonScorePreview();
   }
 
   selectDoubleRonFu(fu) {
@@ -1165,6 +1168,7 @@ class UIController {
     document.querySelectorAll('.double-ron-fu-buttons .fu-btn').forEach(btn => {
       btn.classList.toggle('active', parseInt(btn.dataset.fu) === fu);
     });
+    this.updateDoubleRonScorePreview();
   }
 
   selectDoubleRonHan(han) {
@@ -1172,6 +1176,32 @@ class UIController {
     document.querySelectorAll('.double-ron-han-buttons .han-btn').forEach(btn => {
       btn.classList.toggle('active', parseInt(btn.dataset.han) === han);
     });
+    this.updateDoubleRonScorePreview();
+  }
+
+  updateDoubleRonScorePreview() {
+    const state = this.doubleRonState;
+    if (!state || state.currentWinnerIdx === undefined) return;
+
+    const winnerIndex = state.winners[state.currentWinnerIdx];
+    const isDealer = this.gameState.isDealer(winnerIndex);
+    const is3Player = this.gameState.gameMode === '3player';
+    const fu = state.currentFu || 30;
+    const han = state.currentHan || 1;
+
+    const result = ScoreCalculator.calculate(fu, han, isDealer, false, is3Player);
+    const honbaBonus = this.gameState.honba * 300;
+    const totalWithHonba = result.total + honbaBonus;
+
+    const scoreValue = document.getElementById('double-ron-score-value');
+    const scoreDetail = document.getElementById('double-ron-score-detail');
+
+    if (scoreValue) {
+      scoreValue.textContent = `${totalWithHonba.toLocaleString()}点`;
+    }
+    if (scoreDetail) {
+      scoreDetail.textContent = honbaBonus > 0 ? `${result.detail} (+${honbaBonus}本場)` : result.detail;
+    }
   }
 
   nextDoubleRonWinner() {
