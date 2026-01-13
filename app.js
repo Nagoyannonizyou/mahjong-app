@@ -398,12 +398,12 @@ class UIController {
       btn.addEventListener('click', (e) => this.showAgariModal(parseInt(e.target.dataset.player), 'ron'));
     });
 
-    // Agari Modal
-    document.querySelectorAll('.fu-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => this.selectFu(parseInt(e.target.dataset.fu)));
+    // Agari Modal - ドロップダウン方式
+    document.getElementById('fu-select').addEventListener('change', (e) => {
+      this.selectFu(parseInt(e.target.value));
     });
-    document.querySelectorAll('.han-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => this.selectHan(parseInt(e.target.dataset.han)));
+    document.getElementById('han-select').addEventListener('change', (e) => {
+      this.selectHan(parseInt(e.target.value));
     });
     document.getElementById('btn-agari-cancel').addEventListener('click', () => this.hideModal('agari-modal'));
     document.getElementById('btn-agari-confirm').addEventListener('click', () => this.confirmAgari());
@@ -421,15 +421,15 @@ class UIController {
     document.getElementById('btn-end-game').addEventListener('click', () => this.showConfirmEndModal());
     document.getElementById('btn-menu-close').addEventListener('click', () => this.hideModal('menu-modal'));
 
-    // Double Ron Modal
+    // Double Ron Modal - ドロップダウン方式
     document.getElementById('btn-double-ron-cancel').addEventListener('click', () => this.hideModal('double-ron-modal'));
     document.getElementById('btn-double-ron-confirm').addEventListener('click', () => this.confirmDoubleRon());
     document.getElementById('btn-double-ron-next-winner').addEventListener('click', () => this.nextDoubleRonWinner());
-    document.querySelectorAll('.double-ron-fu-buttons .fu-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => this.selectDoubleRonFu(parseInt(e.target.dataset.fu)));
+    document.getElementById('double-ron-fu-select').addEventListener('change', (e) => {
+      this.selectDoubleRonFu(parseInt(e.target.value));
     });
-    document.querySelectorAll('.double-ron-han-buttons .han-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => this.selectDoubleRonHan(parseInt(e.target.dataset.han)));
+    document.getElementById('double-ron-han-select').addEventListener('change', (e) => {
+      this.selectDoubleRonHan(parseInt(e.target.value));
     });
 
     // Yaku List Modal
@@ -676,13 +676,9 @@ class UIController {
       ronTargetDiv.style.display = 'none';
     }
 
-    // Reset selections
-    document.querySelectorAll('.fu-btn').forEach(btn => {
-      btn.classList.toggle('active', parseInt(btn.dataset.fu) === 30);
-    });
-    document.querySelectorAll('.han-btn').forEach(btn => {
-      btn.classList.toggle('active', parseInt(btn.dataset.han) === 1);
-    });
+    // Reset selections - ドロップダウン方式
+    document.getElementById('fu-select').value = '30';
+    document.getElementById('han-select').value = '1';
 
     this.updateScorePreview();
     document.getElementById('agari-modal').style.display = 'flex';
@@ -701,17 +697,21 @@ class UIController {
 
   selectFu(fu) {
     this.currentAgari.fu = fu;
-    document.querySelectorAll('.fu-btn').forEach(btn => {
-      btn.classList.toggle('active', parseInt(btn.dataset.fu) === fu);
-    });
+    // ドロップダウンの値も同期
+    const fuSelect = document.getElementById('fu-select');
+    if (fuSelect && fuSelect.value !== String(fu)) {
+      fuSelect.value = fu;
+    }
     this.updateScorePreview();
   }
 
   selectHan(han) {
     this.currentAgari.han = han;
-    document.querySelectorAll('.han-btn').forEach(btn => {
-      btn.classList.toggle('active', parseInt(btn.dataset.han) === han);
-    });
+    // ドロップダウンの値も同期
+    const hanSelect = document.getElementById('han-select');
+    if (hanSelect && hanSelect.value !== String(han)) {
+      hanSelect.value = han;
+    }
     this.updateScorePreview();
   }
 
@@ -1140,13 +1140,9 @@ class UIController {
     document.getElementById('double-ron-current-winner').textContent =
       `${winnerName} の符・翻を入力 (${state.currentWinnerIdx + 1}/${state.winners.length}人目):`;
 
-    // リセット
-    document.querySelectorAll('.double-ron-fu-buttons .fu-btn').forEach(btn => {
-      btn.classList.toggle('active', parseInt(btn.dataset.fu) === 30);
-    });
-    document.querySelectorAll('.double-ron-han-buttons .han-btn').forEach(btn => {
-      btn.classList.toggle('active', parseInt(btn.dataset.han) === 1);
-    });
+    // リセット - ドロップダウン方式
+    document.getElementById('double-ron-fu-select').value = '30';
+    document.getElementById('double-ron-han-select').value = '1';
     state.currentFu = 30;
     state.currentHan = 1;
 
@@ -1165,17 +1161,21 @@ class UIController {
 
   selectDoubleRonFu(fu) {
     this.doubleRonState.currentFu = fu;
-    document.querySelectorAll('.double-ron-fu-buttons .fu-btn').forEach(btn => {
-      btn.classList.toggle('active', parseInt(btn.dataset.fu) === fu);
-    });
+    // ドロップダウンの値も同期
+    const fuSelect = document.getElementById('double-ron-fu-select');
+    if (fuSelect && fuSelect.value !== String(fu)) {
+      fuSelect.value = fu;
+    }
     this.updateDoubleRonScorePreview();
   }
 
   selectDoubleRonHan(han) {
     this.doubleRonState.currentHan = han;
-    document.querySelectorAll('.double-ron-han-buttons .han-btn').forEach(btn => {
-      btn.classList.toggle('active', parseInt(btn.dataset.han) === han);
-    });
+    // ドロップダウンの値も同期
+    const hanSelect = document.getElementById('double-ron-han-select');
+    if (hanSelect && hanSelect.value !== String(han)) {
+      hanSelect.value = han;
+    }
     this.updateDoubleRonScorePreview();
   }
 

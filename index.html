@@ -142,43 +142,43 @@
                         <div id="ron-target-buttons" class="target-buttons"></div>
                     </div>
 
-                    <!-- 符選択 -->
-                    <div class="input-section">
-                        <label>符:</label>
-                        <div class="fu-buttons">
-                            <button class="fu-btn" data-fu="20">20</button>
-                            <button class="fu-btn" data-fu="25">25</button>
-                            <button class="fu-btn active" data-fu="30">30</button>
-                            <button class="fu-btn" data-fu="40">40</button>
-                            <button class="fu-btn" data-fu="50">50</button>
-                            <button class="fu-btn" data-fu="60">60</button>
-                            <button class="fu-btn" data-fu="70">70</button>
-                            <button class="fu-btn" data-fu="80">80</button>
-                            <button class="fu-btn" data-fu="90">90</button>
-                            <button class="fu-btn" data-fu="100">100</button>
-                            <button class="fu-btn" data-fu="110">110</button>
+                    <!-- 符・翻選択（ドロップダウン方式） -->
+                    <div class="fu-han-selectors">
+                        <div class="selector-group">
+                            <label for="fu-select">符:</label>
+                            <select id="fu-select" class="fu-han-dropdown">
+                                <option value="20">20符</option>
+                                <option value="25">25符</option>
+                                <option value="30" selected>30符</option>
+                                <option value="40">40符</option>
+                                <option value="50">50符</option>
+                                <option value="60">60符</option>
+                                <option value="70">70符</option>
+                                <option value="80">80符</option>
+                                <option value="90">90符</option>
+                                <option value="100">100符</option>
+                                <option value="110">110符</option>
+                            </select>
                         </div>
-                    </div>
-
-                    <!-- 翻選択 -->
-                    <div class="input-section">
-                        <label>翻:</label>
-                        <div class="han-buttons">
-                            <button class="han-btn active" data-han="1">1</button>
-                            <button class="han-btn" data-han="2">2</button>
-                            <button class="han-btn" data-han="3">3</button>
-                            <button class="han-btn" data-han="4">4</button>
-                            <button class="han-btn" data-han="5">5</button>
-                            <button class="han-btn" data-han="6">6</button>
-                            <button class="han-btn" data-han="7">7</button>
-                            <button class="han-btn" data-han="8">8</button>
-                            <button class="han-btn" data-han="9">9</button>
-                            <button class="han-btn" data-han="10">10</button>
-                            <button class="han-btn" data-han="11">11</button>
-                            <button class="han-btn" data-han="12">12</button>
-                            <button class="han-btn yakuman-btn" data-han="13">役満</button>
-                            <button class="han-btn yakuman-btn" data-han="26">W役満</button>
-                            <button class="han-btn yakuman-btn" data-han="39">T役満</button>
+                        <div class="selector-group">
+                            <label for="han-select">翻:</label>
+                            <select id="han-select" class="fu-han-dropdown">
+                                <option value="1" selected>1翻</option>
+                                <option value="2">2翻</option>
+                                <option value="3">3翻</option>
+                                <option value="4">4翻</option>
+                                <option value="5">5翻 (満貫)</option>
+                                <option value="6">6翻 (跳満)</option>
+                                <option value="7">7翻 (跳満)</option>
+                                <option value="8">8翻 (倍満)</option>
+                                <option value="9">9翻 (倍満)</option>
+                                <option value="10">10翻 (倍満)</option>
+                                <option value="11">11翻 (三倍満)</option>
+                                <option value="12">12翻 (三倍満)</option>
+                                <option value="13">役満</option>
+                                <option value="26">ダブル役満</option>
+                                <option value="39">トリプル役満</option>
+                            </select>
                         </div>
                     </div>
 
@@ -357,40 +357,43 @@
                     </details>
                 </div>
 
-                <div class="input-section">
-                    <label>符:</label>
-                    <div class="fu-buttons double-ron-fu-buttons">
-                        <button class="fu-btn" data-fu="20">20</button>
-                        <button class="fu-btn" data-fu="25">25</button>
-                        <button class="fu-btn active" data-fu="30">30</button>
-                        <button class="fu-btn" data-fu="40">40</button>
-                        <button class="fu-btn" data-fu="50">50</button>
-                        <button class="fu-btn" data-fu="60">60</button>
-                        <button class="fu-btn" data-fu="70">70</button>
-                        <button class="fu-btn" data-fu="80">80</button>
-                        <button class="fu-btn" data-fu="90">90</button>
-                        <button class="fu-btn" data-fu="100">100</button>
-                        <button class="fu-btn" data-fu="110">110</button>
+                <!-- 符・翻選択（ダブロン用ドロップダウン） -->
+                <div class="fu-han-selectors">
+                    <div class="selector-group">
+                        <label for="double-ron-fu-select">符:</label>
+                        <select id="double-ron-fu-select" class="fu-han-dropdown">
+                            <option value="20">20符</option>
+                            <option value="25">25符</option>
+                            <option value="30" selected>30符</option>
+                            <option value="40">40符</option>
+                            <option value="50">50符</option>
+                            <option value="60">60符</option>
+                            <option value="70">70符</option>
+                            <option value="80">80符</option>
+                            <option value="90">90符</option>
+                            <option value="100">100符</option>
+                            <option value="110">110符</option>
+                        </select>
                     </div>
-                </div>
-                <div class="input-section">
-                    <label>翻:</label>
-                    <div class="han-buttons double-ron-han-buttons">
-                        <button class="han-btn active" data-han="1">1</button>
-                        <button class="han-btn" data-han="2">2</button>
-                        <button class="han-btn" data-han="3">3</button>
-                        <button class="han-btn" data-han="4">4</button>
-                        <button class="han-btn" data-han="5">5</button>
-                        <button class="han-btn" data-han="6">6</button>
-                        <button class="han-btn" data-han="7">7</button>
-                        <button class="han-btn" data-han="8">8</button>
-                        <button class="han-btn" data-han="9">9</button>
-                        <button class="han-btn" data-han="10">10</button>
-                        <button class="han-btn" data-han="11">11</button>
-                        <button class="han-btn" data-han="12">12</button>
-                        <button class="han-btn yakuman-btn" data-han="13">役満</button>
-                        <button class="han-btn yakuman-btn" data-han="26">W役満</button>
-                        <button class="han-btn yakuman-btn" data-han="39">T役満</button>
+                    <div class="selector-group">
+                        <label for="double-ron-han-select">翻:</label>
+                        <select id="double-ron-han-select" class="fu-han-dropdown">
+                            <option value="1" selected>1翻</option>
+                            <option value="2">2翻</option>
+                            <option value="3">3翻</option>
+                            <option value="4">4翻</option>
+                            <option value="5">5翻 (満貫)</option>
+                            <option value="6">6翻 (跳満)</option>
+                            <option value="7">7翻 (跳満)</option>
+                            <option value="8">8翻 (倍満)</option>
+                            <option value="9">9翻 (倍満)</option>
+                            <option value="10">10翻 (倍満)</option>
+                            <option value="11">11翻 (三倍満)</option>
+                            <option value="12">12翻 (三倍満)</option>
+                            <option value="13">役満</option>
+                            <option value="26">ダブル役満</option>
+                            <option value="39">トリプル役満</option>
+                        </select>
                     </div>
                 </div>
 
